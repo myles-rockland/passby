@@ -54,10 +54,10 @@ namespace PassBy
                 { "location", location }
             };
 
-            string playerJsonData = JsonUtility.ToJson(playerData);
+            string playerJsonData = JsonConvert.SerializeObject(playerData);
 
             // Send POST request to get unique id
-            string serverUrl = "http://10.86.73.162:5000"; //10.86.73.162
+            string serverUrl = "http://10.86.73.162:5000"; // 10.86.73.162 // This needs to be some static ip, or an ip that can be calculated to guarantee a server connection...
             string contentType = "application/json";
             using (UnityWebRequest request = UnityWebRequest.Post($"{serverUrl}/generate_player_id", playerJsonData, contentType))
             {
@@ -69,9 +69,7 @@ namespace PassBy
                 }
                 else
                 {
-                    //id = int.Parse(request.GetResponseHeader("player_id"));
                     string jsonResponse = request.downloadHandler.text;
-                    Debug.Log("JSON Response: " + jsonResponse);
                     Dictionary<string, int> playerIdDict = JsonConvert.DeserializeObject<Dictionary<string, int>>(jsonResponse);
                     id = playerIdDict["player_id"];
                     Debug.Log("Player id updated successfully.");
