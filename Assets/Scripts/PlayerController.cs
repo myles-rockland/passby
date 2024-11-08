@@ -15,6 +15,7 @@ namespace PassBy
         private Dictionary<string, string> avatar;
         private Dictionary<string, float> location;
         public GameObject inputField;
+        public GameObject notificationControllerObject;
 
         private void Awake()
         {
@@ -121,8 +122,13 @@ namespace PassBy
                 {
                     string jsonResponse = request.downloadHandler.text;
                     Debug.Log("Nearby players: " + jsonResponse);
-                    Dictionary<string, object> nearbyPlayers = JsonConvert.DeserializeObject<Dictionary<string, object>>(jsonResponse);
-                    Debug.Log("Nearby players successfully found.");
+                    Dictionary<int, object> nearbyPlayers = JsonConvert.DeserializeObject<Dictionary<int, object>>(jsonResponse);
+                    if (nearbyPlayers.Count > 0)
+                    {
+                        Debug.Log("Nearby players successfully found.");
+                        NotificationController notificationController = notificationControllerObject.GetComponent<NotificationController>();
+                        notificationController.SendPassbyNotification("New PasserBy!", "You passed by someone"); // Should specify who using their name. Could also be several people at once
+                    }
                 }
             }
             yield break;

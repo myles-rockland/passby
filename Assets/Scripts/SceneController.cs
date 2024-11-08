@@ -30,7 +30,8 @@ namespace PassBy
         private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
         {
             Debug.Log("OnSceneLoaded: " + scene.name);
-            playerController.StartGetNearbyPlayersPeriodically();
+            if (scene.name == "MainHub")
+                playerController.StartGetNearbyPlayersPeriodically();
         }
     }
 }
