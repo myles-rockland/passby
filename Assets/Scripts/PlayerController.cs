@@ -12,26 +12,30 @@ namespace PassBy
     {
         private int id;
         private new string name;
+        private Dictionary<string, string> avatar;
+        private Dictionary<string, float> location;
         public GameObject inputField;
 
+        private void Awake()
+        {
+            DontDestroyOnLoad(gameObject);
+        }
         public int GetId() { return id; }
         public string GetName() { return name; }
         public void SetName()
         {
             name = inputField.GetComponent<TMP_InputField>().text;
         }
+
         public void StartGeneratePlayerId()
         {
             StartCoroutine(GeneratePlayerId());
         }
 
-        public IEnumerator GeneratePlayerId()
+        public IEnumerator GeneratePlayerId() // Send a request to the web server for a unique player id
         {
-            // Send a request to the web server for a unique player id
-            // https://docs.unity3d.com/2022.3/Documentation/ScriptReference/Networking.UnityWebRequest.Post.html
-
             // Create dictionaries
-            Dictionary<string, float> location = new Dictionary<string, float> {
+            location = new Dictionary<string, float> {
                 { "latitude", Input.location.lastData.latitude },
                 { "longitude", Input.location.lastData.longitude }
             };
@@ -40,7 +44,7 @@ namespace PassBy
             string leftHandColour = GameObject.Find("Left Hand").GetComponent<SpriteRenderer>().sprite.name;
             string rightHandColour = GameObject.Find("Right Hand").GetComponent<SpriteRenderer>().sprite.name;
 
-            Dictionary<string, string> avatar = new Dictionary<string, string> {
+            avatar = new Dictionary<string, string> {
                 //{ "bodyShape", bodyShape },
                 { "bodyColour", bodyColour },
                 { "leftHandColour", leftHandColour },
@@ -77,41 +81,51 @@ namespace PassBy
             }
         }
 
-        IEnumerator Start()
+        public void StartGetNearbyPlayersPeriodically()
         {
-            // Check if the user has location service enabled.
-            if (!Input.location.isEnabledByUser)
-                Debug.Log("Location not enabled on device or app does not have permission to access location");
+            StartCoroutine(GetNearbyPlayersPeriodically());
+        }
 
-            // Starts the location service.
-            Input.location.Start();
+        public IEnumerator GetNearbyPlayersPeriodically()
+        {
+            while (true)
+            {
+                yield return StartCoroutine(GetNearbyPlayers());
+                yield return new WaitForSecondsRealtime(7.5f);
+            }
+        }
 
-            // Waits until the location service initializes
-            int maxWait = 20;
-            while (Input.location.status == LocationServiceStatus.Initializing && maxWait > 0)
-            {
-                yield return new WaitForSeconds(1);
-                maxWait--;
-            }
+        public IEnumerator GetNearbyPlayers() // Send a request to the web server for nearby players
+        {
+            // Create JSON data
+            Dictionary<string, object> playerData = new Dictionary<string, object> {
+                { "player_id", id },
+                { "latitude", Input.location.lastData.latitude },
+                { "longitude", Input.location.lastData.longitude }
+            };
 
-            // If the service didn't initialize in 20 seconds this cancels location service use.
-            if (maxWait < 1)
-            {
-                Debug.Log("Timed out");
-                yield break;
-            }
+            string playerJsonData = JsonConvert.SerializeObject(playerData);
 
-            // If the connection failed this cancels location service use.
-            if (Input.location.status == LocationServiceStatus.Failed)
+            // Send POST request to get nearby players
+            string serverUrl = "http://10.86.73.162:5000"; // 10.86.73.162 // This needs to be some static ip, or an ip that can be calculated to guarantee a server connection...
+            string contentType = "application/json";
+            using (UnityWebRequest request = UnityWebRequest.Post($"{serverUrl}/get_nearby_players", playerJsonData, contentType))
             {
-                Debug.LogError("Unable to determine device location");
-                yield break;
+                yield return request.SendWebRequest();
+
+                if (request.result != UnityWebRequest.Result.Success)
+                {
+                    Debug.LogError("Error getting nearby players: " + request.error);
+                }
+                else
+                {
+                    string jsonResponse = request.downloadHandler.text;
+                    Debug.Log("Nearby players: " + jsonResponse);
+                    Dictionary<string, object> nearbyPlayers = JsonConvert.DeserializeObject<Dictionary<string, object>>(jsonResponse);
+                    Debug.Log("Nearby players successfully found.");
+                }
             }
-            else
-            {
-                // If the connection succeeded, this retrieves the device's current location and displays it in the Console window.
-                Debug.Log("Location: " + Input.location.lastData.latitude + " " + Input.location.lastData.longitude + " " + Input.location.lastData.timestamp);
-            }
+            yield break;
         }
     }
 }

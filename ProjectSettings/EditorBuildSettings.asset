@@ -8,6 +8,12 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/SampleScene.unity
     guid: 2cda990e2423bbf4892e6590ba056729
+  - enabled: 1
+    path: Assets/Scenes/AvatarCreation.unity
+    guid: 90334bd6a02d98a44923b0b3ac8b0f62
+  - enabled: 1
+    path: Assets/Scenes/MainHub.unity
+    guid: 1d97b596d8fca7f499792f1257c67344
   m_configObjects:
     com.unity.adaptiveperformance.google.android.provider_settings: {fileID: 11400000, guid: 7e23e1b0dace1574b98a2f31d4db0555, type: 2}
     com.unity.adaptiveperformance.loader_settings: {fileID: 11400000, guid: 923b0433aab47bf46901b3df63070a47, type: 2}
