@@ -16,6 +16,7 @@ namespace PassBy
         private Dictionary<string, float> location;
         public GameObject inputField;
         public GameObject notificationControllerObject;
+        //public List<Passerby> passerbyCollection;
 
         private void Awake()
         {
