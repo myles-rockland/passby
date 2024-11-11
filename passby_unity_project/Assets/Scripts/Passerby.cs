@@ -6,8 +6,12 @@ namespace PassBy
 {
     public class Passerby
     {
-        public int ID { get; set; }
         public string Name { get; set; }
-        public Avatar Avatar { get; }
+        public Avatar Avatar { get; set; }
+
+        public Passerby() 
+        {
+            Avatar = new Avatar();
+        }
     }
 }

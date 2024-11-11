@@ -10,23 +10,21 @@ namespace PassBy
 {
     public class PlayerController : MonoBehaviour
     {
-        private int id;
-        private new string name;
-        private Dictionary<string, string> avatar;
-        private Dictionary<string, float> location;
-        public GameObject inputField;
+        int id;
+        private Passerby Passerby = new Passerby();
         public GameObject notificationControllerObject;
-        //public List<Passerby> passerbyCollection;
+        public List<Passerby> passerbyCollection;
 
         private void Awake()
         {
             DontDestroyOnLoad(gameObject);
         }
         public int GetId() { return id; }
-        public string GetName() { return name; }
-        public void SetName()
+        public void SetId(int id) { this.id = id; }
+        public string GetName() { return Passerby.Name; }
+        public void SetName(TMP_InputField inputField)
         {
-            name = inputField.GetComponent<TMP_InputField>().text;
+            Passerby.Name = inputField.text;
         }
 
         public void StartGeneratePlayerId()
@@ -37,26 +35,23 @@ namespace PassBy
         public IEnumerator GeneratePlayerId() // Send a request to the web server for a unique player id
         {
             // Create dictionaries
-            location = new Dictionary<string, float> {
+            Dictionary<string, float> location = new Dictionary<string, float> {
                 { "latitude", Input.location.lastData.latitude },
                 { "longitude", Input.location.lastData.longitude }
             };
 
-            string bodyColour = GameObject.Find("Body").GetComponent<SpriteRenderer>().sprite.name; // need a better way to get these values...
+            string bodyType = GameObject.Find("Body").GetComponent<SpriteRenderer>().sprite.name; // need a better way to get these values...
             string leftHandColour = GameObject.Find("Left Hand").GetComponent<SpriteRenderer>().sprite.name;
             string rightHandColour = GameObject.Find("Right Hand").GetComponent<SpriteRenderer>().sprite.name;
 
-            avatar = new Dictionary<string, string> {
-                //{ "bodyShape", bodyShape },
-                { "bodyColour", bodyColour },
-                { "leftHandColour", leftHandColour },
-                { "rightHandColour", rightHandColour }
-            };
+            Passerby.Avatar.BodyType = bodyType;
+            Passerby.Avatar.LeftHandColour = leftHandColour;
+            Passerby.Avatar.RightHandColour = rightHandColour;
 
             // Create JSON data
             Dictionary<string, object> playerData = new Dictionary<string, object> {
-                { "name", name },
-                { "avatar", avatar },
+                { "name", Passerby.Name },
+                { "avatar", Passerby.Avatar },
                 { "location", location }
             };
 
@@ -123,7 +118,7 @@ namespace PassBy
                 {
                     string jsonResponse = request.downloadHandler.text;
                     Debug.Log("Nearby players: " + jsonResponse);
-                    Dictionary<int, object> nearbyPlayers = JsonConvert.DeserializeObject<Dictionary<int, object>>(jsonResponse);
+                    Dictionary<int, Passerby> nearbyPlayers = JsonConvert.DeserializeObject<Dictionary<int, Passerby>>(jsonResponse);
                     if (nearbyPlayers.Count > 0)
                     {
                         Debug.Log("Nearby players successfully found.");

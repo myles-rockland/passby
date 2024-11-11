@@ -6,8 +6,7 @@ namespace PassBy
 {
     public class Avatar
     {
-        public string BodyShape { get; set; }
-        public string BodyColour { get; set; }
+        public string BodyType { get; set; }
         public string LeftHandColour { get; set; }
         public string RightHandColour { get; set; }
     }

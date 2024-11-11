@@ -752,7 +752,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 906856f8653103c4e88ddc1d663be216, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  inputField: {fileID: 727590771}
   notificationControllerObject: {fileID: 1164790919}
 --- !u!1 &563811215
 GameObject:
@@ -1032,10 +1031,10 @@ MonoBehaviour:
       - m_Target: {fileID: 554619884}
         m_TargetAssemblyTypeName: PassBy.PlayerController, Assembly-CSharp
         m_MethodName: SetName
-        m_Mode: 1
+        m_Mode: 2
         m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_ObjectArgument: {fileID: 727590773}
+          m_ObjectArgumentAssemblyTypeName: TMPro.TMP_InputField, Unity.TextMeshPro
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
