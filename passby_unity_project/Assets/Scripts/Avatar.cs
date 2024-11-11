@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace PassBy
 {
+    [System.Serializable]
     public class Avatar
     {
         public string BodyType { get; set; }

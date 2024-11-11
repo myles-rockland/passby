@@ -10,17 +10,24 @@ namespace PassBy
 {
     public class PlayerController : MonoBehaviour
     {
-        int id;
-        private Passerby Passerby = new Passerby();
-        public GameObject notificationControllerObject;
-        public List<Passerby> passerbyCollection;
+        private int id;
+        private Passerby Passerby;
+        [SerializeField]
+        private GameObject notificationControllerObject;
+        private List<Passerby> passerbyCollection;
 
-        private void Awake()
+        void Awake()
         {
             DontDestroyOnLoad(gameObject);
         }
+        private void Start()
+        {
+            id = 0;
+            Passerby = new Passerby();
+            passerbyCollection = new List<Passerby>();
+        }
+
         public int GetId() { return id; }
-        public void SetId(int id) { this.id = id; }
         public string GetName() { return Passerby.Name; }
         public void SetName(TMP_InputField inputField)
         {
@@ -50,8 +57,8 @@ namespace PassBy
 
             // Create JSON data
             Dictionary<string, object> playerData = new Dictionary<string, object> {
-                { "name", Passerby.Name },
-                { "avatar", Passerby.Avatar },
+                { "Name", Passerby.Name },
+                { "Avatar", Passerby.Avatar },
                 { "location", location }
             };
 
@@ -73,7 +80,7 @@ namespace PassBy
                     string jsonResponse = request.downloadHandler.text;
                     Dictionary<string, int> playerIdDict = JsonConvert.DeserializeObject<Dictionary<string, int>>(jsonResponse);
                     id = playerIdDict["player_id"];
-                    Debug.Log("Player id updated successfully.");
+                    Debug.Log($"Player id generated successfully (value is now {id}).");
                 }
             }
         }
@@ -124,6 +131,11 @@ namespace PassBy
                         Debug.Log("Nearby players successfully found.");
                         NotificationController notificationController = notificationControllerObject.GetComponent<NotificationController>();
                         notificationController.SendPassbyNotification("New PasserBy!", "You passed by someone"); // Should specify who using their name. Could also be several people at once
+                        foreach (Passerby passerby in nearbyPlayers.Values)
+                        {
+                            passerbyCollection.Add(passerby);
+                            Debug.Log($"Added {passerby.Name} to collection!");
+                        }
                     }
                 }
             }

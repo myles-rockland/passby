@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace PassBy
 {
+    [System.Serializable]
     public class Passerby
     {
         public string Name { get; set; }

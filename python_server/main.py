@@ -17,14 +17,14 @@ UPDATE_FREQUENCY = 10
 @app.route('/generate_player_id', methods=['POST'])
 def generate_player_id():
     data = request.get_json()
-    name = data.get("name")
-    avatar = data.get("avatar")
+    name = data.get("Name")
+    avatar = data.get("Avatar")
     location = data.get("location")
 
     player_id = len(players_data)
     players_data[player_id] = {
-        "name": name,
-        "avatar": avatar,
+        "Name": name,
+        "Avatar": avatar,
         "location": location,
         "timestamp": time.time()
     }
@@ -61,10 +61,10 @@ def get_nearby_players():
             continue
 
         # Get the other player's name
-        name = info["name"]
+        name = info["Name"]
 
         # Get the other player's avatar
-        avatar = info["avatar"]
+        avatar = info["Avatar"]
         
         # Calculate the distance
         other_position = (info["location"]["latitude"], info["location"]["longitude"])
@@ -76,8 +76,8 @@ def get_nearby_players():
 
         if distance <= PROXIMITY_RADIUS and time_difference <= UPDATE_FREQUENCY:
             nearby_players[other_id] = {
-                "name": name,
-                "avatar": avatar
+                "Name": name,
+                "Avatar": avatar
             }
 
     return jsonify(nearby_players), 200
