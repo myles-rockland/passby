@@ -7,9 +7,9 @@ namespace PassBy
 {
     public class SceneController : MonoBehaviour
     {
-        public GameObject playerControllerObject;
+        [SerializeField]
         private PlayerController playerController;
-        public GameObject locationControllerObject;
+        [SerializeField]
         private LocationController locationController;
 
 
@@ -17,9 +17,6 @@ namespace PassBy
         {
             DontDestroyOnLoad(gameObject);
             SceneManager.sceneLoaded += OnSceneLoaded;
-
-            playerController = playerControllerObject.GetComponent<PlayerController>();
-            locationController = locationControllerObject.GetComponent<LocationController>();
         }
 
         public void LoadScene(string sceneName)
@@ -31,7 +28,10 @@ namespace PassBy
         {
             Debug.Log("OnSceneLoaded: " + scene.name);
             if (scene.name == "MainHub")
+            {
                 playerController.StartGetNearbyPlayersPeriodically();
+                // Display collected avatars on screen...
+            }
         }
     }
 }
