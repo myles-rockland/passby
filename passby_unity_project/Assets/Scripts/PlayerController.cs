@@ -5,16 +5,19 @@ using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
 using Newtonsoft.Json;
+using UnityEngine.Events;
+using UnityEngine.SceneManagement;
 
 namespace PassBy
 {
     public class PlayerController : MonoBehaviour
     {
-        private int id;
-        private Passerby Passerby;
         [SerializeField]
         private GameObject notificationControllerObject;
+        private int id;
+        private Passerby Passerby;
         private List<Passerby> passerbyCollection;
+        UnityEvent nearbyPlayerFound;
 
         void Awake()
         {
@@ -25,6 +28,8 @@ namespace PassBy
             id = 0;
             Passerby = new Passerby();
             passerbyCollection = new List<Passerby>();
+            nearbyPlayerFound = new UnityEvent();
+            nearbyPlayerFound.AddListener(onNearbyPlayerFound);
         }
 
         public int GetId() { return id; }
@@ -32,6 +37,10 @@ namespace PassBy
         public void SetName(TMP_InputField inputField)
         {
             Passerby.Name = inputField.text;
+        }
+        public List<Passerby> GetPassersby()
+        {
+            return passerbyCollection;
         }
 
         public void StartGeneratePlayerId()
@@ -131,15 +140,52 @@ namespace PassBy
                         Debug.Log("Nearby players successfully found.");
                         NotificationController notificationController = notificationControllerObject.GetComponent<NotificationController>();
                         notificationController.SendPassbyNotification("New PasserBy!", "You passed by someone"); // Should specify who using their name. Could also be several people at once
+                        
+                        // Add each passerby to the player's collection
                         foreach (Passerby passerby in nearbyPlayers.Values)
                         {
                             passerbyCollection.Add(passerby);
                             Debug.Log($"Added {passerby.Name} to collection!");
                         }
+                        nearbyPlayerFound.Invoke();
                     }
                 }
             }
             yield break;
+        }
+
+        private void onNearbyPlayerFound()
+        {
+            // Display collected avatars on screen...
+            if(SceneManager.GetActiveScene().name == "MainHub")
+            {
+                Debug.Log("In the MainHub scene!");
+                GameObject scrollViewContent = GameObject.Find("/Canvas/Scroll View/Viewport/Content");
+                if (scrollViewContent == null)
+                    Debug.LogError("Couldn't find Content object?");
+                else
+                    Debug.Log("Found the Content object");
+
+                for (int i = 0; i < passerbyCollection.Count; i++)
+                {
+                    Passerby passerby = passerbyCollection[i];
+
+                    GameObject gridCell = new GameObject($"Grid Cell {i}");
+                    gridCell.transform.SetParent(scrollViewContent.transform, false);
+                    gridCell.AddComponent<RectTransform>();
+
+                    GameObject avatar = new GameObject($"{passerby.Name}'s Avatar");
+                    avatar.transform.SetParent(gridCell.transform, false);
+                    avatar.AddComponent<RectTransform>();
+
+                    Image image = avatar.AddComponent<Image>();
+                    Sprite avatarBody = Resources.Load<Sprite>("Art/kenney_shape-characters/PNG/Default/" + passerby.Avatar.BodyType);
+                    if (avatarBody == null)
+                        Debug.LogError("Couldn't find avatarBody resource?");
+                    else
+                        image.sprite = avatarBody;
+                }
+            }
         }
     }
 }

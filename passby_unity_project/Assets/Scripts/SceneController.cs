@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 namespace PassBy
 {
@@ -30,7 +31,6 @@ namespace PassBy
             if (scene.name == "MainHub")
             {
                 playerController.StartGetNearbyPlayersPeriodically();
-                // Display collected avatars on screen...
             }
         }
     }

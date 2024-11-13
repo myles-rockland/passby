@@ -36,7 +36,6 @@ def generate_player_id():
 @app.route('/get_nearby_players', methods=['POST'])
 def get_nearby_players():
     data = request.get_json()
-    #print(data)
     player_id = data.get("player_id")
     latitude = data.get("latitude")
     longitude = data.get("longitude")
@@ -79,6 +78,7 @@ def get_nearby_players():
                 "Name": name,
                 "Avatar": avatar
             }
+            print(players_data[player_id]["Name"] + " passed by " + name)
 
     return jsonify(nearby_players), 200
 
