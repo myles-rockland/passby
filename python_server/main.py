@@ -12,7 +12,7 @@ players_data = {}
 # Proximity radius in meters
 PROXIMITY_RADIUS = 10
 # Update frequency in seconds
-UPDATE_FREQUENCY = 10
+UPDATE_FREQUENCY = 100
 
 @app.route('/generate_player_id', methods=['POST'])
 def generate_player_id():

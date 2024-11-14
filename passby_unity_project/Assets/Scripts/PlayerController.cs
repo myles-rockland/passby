@@ -18,6 +18,7 @@ namespace PassBy
         private Passerby Passerby;
         private List<Passerby> passerbyCollection;
         UnityEvent nearbyPlayerFound;
+        string serverUrl = "http://10.254.107.164:5000"; // 10.86.73.162
 
         void Awake()
         {
@@ -25,7 +26,7 @@ namespace PassBy
         }
         private void Start()
         {
-            id = 0;
+            id = -1;
             Passerby = new Passerby();
             passerbyCollection = new List<Passerby>();
             nearbyPlayerFound = new UnityEvent();
@@ -74,7 +75,6 @@ namespace PassBy
             string playerJsonData = JsonConvert.SerializeObject(playerData);
 
             // Send POST request to get unique id
-            string serverUrl = "http://10.86.73.162:5000"; // 10.86.73.162 // This needs to be some static ip, or an ip that can be calculated to guarantee a server connection...
             string contentType = "application/json";
             using (UnityWebRequest request = UnityWebRequest.Post($"{serverUrl}/generate_player_id", playerJsonData, contentType))
             {
@@ -101,6 +101,10 @@ namespace PassBy
 
         public IEnumerator GetNearbyPlayersPeriodically()
         {
+            while (id < 0)
+            {
+                yield return null;
+            }
             while (true)
             {
                 yield return StartCoroutine(GetNearbyPlayers());
@@ -120,7 +124,6 @@ namespace PassBy
             string playerJsonData = JsonConvert.SerializeObject(playerData);
 
             // Send POST request to get nearby players
-            string serverUrl = "http://10.86.73.162:5000"; // 10.86.73.162 // This needs to be some static ip, or an ip that can be calculated to guarantee a server connection...
             string contentType = "application/json";
             using (UnityWebRequest request = UnityWebRequest.Post($"{serverUrl}/get_nearby_players", playerJsonData, contentType))
             {
