@@ -18,7 +18,7 @@ namespace PassBy
         private Passerby Passerby;
         private List<Passerby> passerbyCollection;
         UnityEvent nearbyPlayerFound;
-        string serverUrl = "http://10.254.107.164:5000"; // 10.86.73.162
+        string serverUrl = "http://10.86.73.162:5000"; // 10.86.73.162
 
         void Awake()
         {
@@ -143,14 +143,22 @@ namespace PassBy
                         Debug.Log("Nearby players successfully found.");
                         NotificationController notificationController = notificationControllerObject.GetComponent<NotificationController>();
                         notificationController.SendPassbyNotification("New PasserBy!", "You passed by someone"); // Should specify who using their name. Could also be several people at once
-                        
+
                         // Add each passerby to the player's collection
+                        bool newPasserbyCollected = false;
                         foreach (Passerby passerby in nearbyPlayers.Values)
                         {
-                            passerbyCollection.Add(passerby);
-                            Debug.Log($"Added {passerby.Name} to collection!");
+                            if(!passerbyCollection.Contains(passerby))
+                            {
+                                passerbyCollection.Add(passerby);
+                                newPasserbyCollected = true;
+                                Debug.Log($"Added {passerby.Name} to collection!");
+                            }
                         }
-                        nearbyPlayerFound.Invoke();
+                        if (newPasserbyCollected)
+                        {
+                            nearbyPlayerFound.Invoke();
+                        }
                     }
                 }
             }
@@ -165,7 +173,7 @@ namespace PassBy
                 Debug.Log("In the MainHub scene!");
                 GameObject scrollViewContent = GameObject.Find("/Canvas/Scroll View/Viewport/Content");
                 if (scrollViewContent == null)
-                    Debug.LogError("Couldn't find Content object?");
+                    Debug.LogError("Couldn't find Content object");
                 else
                     Debug.Log("Found the Content object");
 
@@ -173,20 +181,64 @@ namespace PassBy
                 {
                     Passerby passerby = passerbyCollection[i];
 
-                    GameObject gridCell = new GameObject($"Grid Cell {i}");
+                    // Grid Cell Object
+                    GameObject gridCell = new GameObject($"Grid Cell {scrollViewContent.transform.childCount}");
                     gridCell.transform.SetParent(scrollViewContent.transform, false);
                     gridCell.AddComponent<RectTransform>();
+                    gridCell.AddComponent<Mask>();
 
+                    // Avatar Object
                     GameObject avatar = new GameObject($"{passerby.Name}'s Avatar");
                     avatar.transform.SetParent(gridCell.transform, false);
-                    avatar.AddComponent<RectTransform>();
+                    RectTransform avatarRectTransform =  avatar.AddComponent<RectTransform>();
+                    avatarRectTransform.localScale = new Vector3(220.0f, 220.0f, 220.0f);
+                    gridCell.AddComponent<Mask>();
 
-                    Image image = avatar.AddComponent<Image>();
+                    // Body Object
+                    GameObject body = new GameObject("Body");
+                    body.transform.SetParent(avatar.transform, false);
+                    SpriteRenderer bodyRenderer = body.AddComponent<SpriteRenderer>();
                     Sprite avatarBody = Resources.Load<Sprite>("Art/kenney_shape-characters/PNG/Default/" + passerby.Avatar.BodyType);
                     if (avatarBody == null)
-                        Debug.LogError("Couldn't find avatarBody resource?");
+                        Debug.LogError("Couldn't find avatarBody resource");
                     else
-                        image.sprite = avatarBody;
+                        bodyRenderer.sprite = avatarBody;
+
+                    // Face Object
+                    GameObject face = new GameObject("Face");
+                    face.transform.SetParent(avatar.transform, false);
+                    SpriteRenderer faceRenderer = face.AddComponent<SpriteRenderer>();
+                    faceRenderer.sortingOrder = 1;
+                    Sprite avatarFace = Resources.Load<Sprite>("Art/kenney_shape-characters/PNG/Default/face_a");
+                    if (avatarFace == null)
+                        Debug.LogError("Couldn't find avatarFace resource");
+                    else
+                        faceRenderer.sprite = avatarFace;
+
+                    // Left Hand Object
+                    GameObject leftHand = new GameObject("Left Hand");
+                    leftHand.transform.SetParent(avatar.transform, false);
+                    leftHand.transform.localPosition = new Vector3(-0.6f, -0.2f, 0f);
+                    SpriteRenderer leftHandRenderer = leftHand.AddComponent<SpriteRenderer>();
+                    leftHandRenderer.flipX = true;
+                    leftHandRenderer.flipY = true;
+                    Sprite avatarLeftHand = Resources.Load<Sprite>("Art/kenney_shape-characters/PNG/Default/" + passerby.Avatar.LeftHandColour);
+                    if (avatarLeftHand == null)
+                        Debug.LogError("Couldn't find left hand resource");
+                    else
+                        leftHandRenderer.sprite = avatarLeftHand;
+
+                    // Right Hand Object
+                    GameObject rightHand = new GameObject("Right Hand");
+                    rightHand.transform.SetParent(avatar.transform, false);
+                    rightHand.transform.localPosition = new Vector3(0.6f, -0.2f, 0f);
+                    SpriteRenderer rightHandRenderer = rightHand.AddComponent<SpriteRenderer>();
+                    rightHandRenderer.flipY = true;
+                    Sprite avatarRightHand = Resources.Load<Sprite>("Art/kenney_shape-characters/PNG/Default/" + passerby.Avatar.RightHandColour);
+                    if (avatarRightHand == null)
+                        Debug.LogError("Couldn't find left hand resource");
+                    else
+                        rightHandRenderer.sprite = avatarRightHand;
                 }
             }
         }
