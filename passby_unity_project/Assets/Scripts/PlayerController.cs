@@ -140,7 +140,7 @@ namespace PassBy
                     {
                         Debug.Log("Nearby players successfully found.");
 
-                        // Add each passerby to the player's collection
+                        // Add each passerby to the player's collection. Can possibly be simplified with a Set data structure?
                         List<int> collectedPasserbyIds = new List<int>();
                         foreach (Passerby passerby in passerbyCollection)
                         {
