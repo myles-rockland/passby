@@ -23,6 +23,7 @@ def generate_player_id():
 
     player_id = len(players_data)
     players_data[player_id] = {
+        "ID": player_id,
         "Name": name,
         "Avatar": avatar,
         "location": location,
@@ -75,6 +76,7 @@ def get_nearby_players():
 
         if distance <= PROXIMITY_RADIUS and time_difference <= UPDATE_FREQUENCY:
             nearby_players[other_id] = {
+                "ID": other_id,
                 "Name": name,
                 "Avatar": avatar
             }

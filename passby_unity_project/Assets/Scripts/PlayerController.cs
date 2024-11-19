@@ -14,7 +14,6 @@ namespace PassBy
     {
         [SerializeField]
         private GameObject notificationControllerObject;
-        private int id;
         private Passerby Passerby;
         private List<Passerby> passerbyCollection;
         UnityEvent nearbyPlayerFound;
@@ -26,14 +25,13 @@ namespace PassBy
         }
         private void Start()
         {
-            id = -1;
             Passerby = new Passerby();
             passerbyCollection = new List<Passerby>();
             nearbyPlayerFound = new UnityEvent();
             nearbyPlayerFound.AddListener(onNearbyPlayerFound);
         }
 
-        public int GetId() { return id; }
+        public int GetId() { return Passerby.ID; }
         public string GetName() { return Passerby.Name; }
         public void SetName(TMP_InputField inputField)
         {
@@ -88,8 +86,8 @@ namespace PassBy
                 {
                     string jsonResponse = request.downloadHandler.text;
                     Dictionary<string, int> playerIdDict = JsonConvert.DeserializeObject<Dictionary<string, int>>(jsonResponse);
-                    id = playerIdDict["player_id"];
-                    Debug.Log($"Player id generated successfully (value is now {id}).");
+                    Passerby.ID = playerIdDict["player_id"];
+                    Debug.Log($"Player id generated successfully (value is now {Passerby.ID}).");
                 }
             }
         }
@@ -101,7 +99,7 @@ namespace PassBy
 
         public IEnumerator GetNearbyPlayersPeriodically()
         {
-            while (id < 0)
+            while (Passerby.ID < 0)
             {
                 yield return null;
             }
@@ -116,7 +114,7 @@ namespace PassBy
         {
             // Create JSON data
             Dictionary<string, object> playerData = new Dictionary<string, object> {
-                { "player_id", id },
+                { "player_id", Passerby.ID },
                 { "latitude", Input.location.lastData.latitude },
                 { "longitude", Input.location.lastData.longitude }
             };
@@ -141,23 +139,31 @@ namespace PassBy
                     if (nearbyPlayers.Count > 0)
                     {
                         Debug.Log("Nearby players successfully found.");
-                        NotificationController notificationController = notificationControllerObject.GetComponent<NotificationController>();
-                        notificationController.SendPassbyNotification("New PasserBy!", "You passed by someone"); // Should specify who using their name. Could also be several people at once
 
                         // Add each passerby to the player's collection
+                        List<int> collectedPasserbyIds = new List<int>();
+                        foreach (Passerby passerby in passerbyCollection)
+                        {
+                            collectedPasserbyIds.Add(passerby.ID);
+                        }
+
                         bool newPasserbyCollected = false;
                         foreach (Passerby passerby in nearbyPlayers.Values)
                         {
-                            if(!passerbyCollection.Contains(passerby))
+
+                            if(!collectedPasserbyIds.Contains(passerby.ID))
                             {
                                 passerbyCollection.Add(passerby);
                                 newPasserbyCollected = true;
                                 Debug.Log($"Added {passerby.Name} to collection!");
                             }
                         }
+
                         if (newPasserbyCollected)
                         {
                             nearbyPlayerFound.Invoke();
+                            NotificationController notificationController = notificationControllerObject.GetComponent<NotificationController>();
+                            notificationController.SendPassbyNotification("New PasserBy!", "You passed by someone"); // Should specify who using their name. Could also be several people at once
                         }
                     }
                 }
