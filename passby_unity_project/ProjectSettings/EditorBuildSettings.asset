@@ -9,14 +9,14 @@ EditorBuildSettings:
     path: Assets/Scenes/SampleScene.unity
     guid: 2cda990e2423bbf4892e6590ba056729
   - enabled: 1
+    path: Assets/Scenes/Persistent.unity
+    guid: a4d5d65a2c2889c48b0c67d91cecb542
+  - enabled: 1
     path: Assets/Scenes/AvatarCreation.unity
     guid: 90334bd6a02d98a44923b0b3ac8b0f62
   - enabled: 1
     path: Assets/Scenes/MainHub.unity
     guid: 1d97b596d8fca7f499792f1257c67344
-  - enabled: 1
-    path: Assets/Scenes/Persistent.unity
-    guid: a4d5d65a2c2889c48b0c67d91cecb542
   - enabled: 1
     path: Assets/Scenes/BoxingMinigame.unity
     guid: 038ed79c1e1eca84ab9c595d5a1607b6

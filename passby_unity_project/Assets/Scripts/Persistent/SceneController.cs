@@ -21,6 +21,10 @@ namespace PassBy
             DontDestroyOnLoad(gameObject);
             SceneManager.sceneLoaded += OnSceneLoaded;
         }
+        void Start()
+        {
+            SceneManager.LoadSceneAsync("AvatarCreation", LoadSceneMode.Additive); // Load AvatarCreation scene on top of Persistent scene
+        }
 
         public void LoadScene(string sceneName)
         {
