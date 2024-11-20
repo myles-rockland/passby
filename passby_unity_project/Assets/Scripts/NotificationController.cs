@@ -7,8 +7,16 @@ namespace PassBy
 {
     public class NotificationController : MonoBehaviour
     {
+        public static NotificationController Instance { get; private set; }
         private void Awake()
         {
+            if (Instance != null && Instance != this)
+            {
+                Destroy(gameObject); // Prevent duplicates
+                return;
+            }
+
+            Instance = this;
             DontDestroyOnLoad(gameObject);
         }
         void Start()

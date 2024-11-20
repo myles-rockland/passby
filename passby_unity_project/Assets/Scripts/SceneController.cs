@@ -8,21 +8,23 @@ namespace PassBy
 {
     public class SceneController : MonoBehaviour
     {
-        [SerializeField]
-        private PlayerController playerController;
-        [SerializeField]
-        private LocationController locationController;
-
-
+        public static SceneController Instance { get; private set; }
         private void Awake()
         {
+            if (Instance != null && Instance != this)
+            {
+                Destroy(gameObject); // Prevent duplicates
+                return;
+            }
+
+            Instance = this;
             DontDestroyOnLoad(gameObject);
             SceneManager.sceneLoaded += OnSceneLoaded;
         }
 
         public void LoadScene(string sceneName)
         {
-            SceneManager.LoadScene(sceneName);
+            SceneManager.LoadSceneAsync(sceneName);
         }
 
         private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
@@ -30,7 +32,7 @@ namespace PassBy
             Debug.Log("OnSceneLoaded: " + scene.name);
             if (scene.name == "MainHub")
             {
-                playerController.StartGetNearbyPlayersPeriodically();
+                PlayerController.Instance.StartGetNearbyPlayersPeriodically();
             }
         }
     }

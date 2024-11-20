@@ -12,30 +12,36 @@ namespace PassBy
 {
     public class PlayerController : MonoBehaviour
     {
-        [SerializeField]
-        private GameObject notificationControllerObject;
-        private Passerby Passerby;
+        public static PlayerController Instance { get; private set; }
+        private Passerby passerby;
         private List<Passerby> passerbyCollection;
         UnityEvent nearbyPlayerFound;
         string serverUrl = "http://10.86.73.162:5000"; // 10.86.73.162
 
         void Awake()
         {
+            if (Instance != null && Instance != this)
+            {
+                Destroy(gameObject); // Prevent duplicates
+                return;
+            }
+
+            Instance = this;
             DontDestroyOnLoad(gameObject);
         }
         private void Start()
         {
-            Passerby = new Passerby();
+            passerby = new Passerby();
             passerbyCollection = new List<Passerby>();
             nearbyPlayerFound = new UnityEvent();
             nearbyPlayerFound.AddListener(onNearbyPlayerFound);
         }
 
-        public int GetId() { return Passerby.ID; }
-        public string GetName() { return Passerby.Name; }
+        public int GetId() { return passerby.ID; }
+        public string GetName() { return passerby.Name; }
         public void SetName(TMP_InputField inputField)
         {
-            Passerby.Name = inputField.text;
+            passerby.Name = inputField.text;
         }
         public List<Passerby> GetPassersby()
         {
@@ -59,14 +65,14 @@ namespace PassBy
             string leftHandColour = GameObject.Find("Left Hand").GetComponent<SpriteRenderer>().sprite.name;
             string rightHandColour = GameObject.Find("Right Hand").GetComponent<SpriteRenderer>().sprite.name;
 
-            Passerby.Avatar.BodyType = bodyType;
-            Passerby.Avatar.LeftHandColour = leftHandColour;
-            Passerby.Avatar.RightHandColour = rightHandColour;
+            passerby.Avatar.BodyType = bodyType;
+            passerby.Avatar.LeftHandColour = leftHandColour;
+            passerby.Avatar.RightHandColour = rightHandColour;
 
             // Create JSON data
             Dictionary<string, object> playerData = new Dictionary<string, object> {
-                { "Name", Passerby.Name },
-                { "Avatar", Passerby.Avatar },
+                { "Name", passerby.Name },
+                { "Avatar", passerby.Avatar },
                 { "location", location }
             };
 
@@ -86,8 +92,8 @@ namespace PassBy
                 {
                     string jsonResponse = request.downloadHandler.text;
                     Dictionary<string, int> playerIdDict = JsonConvert.DeserializeObject<Dictionary<string, int>>(jsonResponse);
-                    Passerby.ID = playerIdDict["player_id"];
-                    Debug.Log($"Player id generated successfully (value is now {Passerby.ID}).");
+                    passerby.ID = playerIdDict["player_id"];
+                    Debug.Log($"Player id generated successfully (value is now {passerby.ID}).");
                 }
             }
         }
@@ -99,7 +105,7 @@ namespace PassBy
 
         public IEnumerator GetNearbyPlayersPeriodically()
         {
-            while (Passerby.ID < 0)
+            while (passerby.ID < 0)
             {
                 yield return null;
             }
@@ -114,7 +120,7 @@ namespace PassBy
         {
             // Create JSON data
             Dictionary<string, object> playerData = new Dictionary<string, object> {
-                { "player_id", Passerby.ID },
+                { "player_id", passerby.ID },
                 { "latitude", Input.location.lastData.latitude },
                 { "longitude", Input.location.lastData.longitude }
             };
@@ -162,8 +168,7 @@ namespace PassBy
                         if (newPasserbyCollected)
                         {
                             nearbyPlayerFound.Invoke();
-                            NotificationController notificationController = notificationControllerObject.GetComponent<NotificationController>();
-                            notificationController.SendPassbyNotification("New PasserBy!", "You passed by someone"); // Should specify who using their name. Could also be several people at once
+                            NotificationController.Instance.SendPassbyNotification("New PasserBy!", "You passed by someone"); // Should specify who using their name. Could also be several people at once
                         }
                     }
                 }
