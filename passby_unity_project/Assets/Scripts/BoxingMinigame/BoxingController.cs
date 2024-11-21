@@ -14,12 +14,16 @@ namespace PassBy
         Slider p2HealthBarSlider;
         [SerializeField]
         TMP_Text middleText;
+        [SerializeField]
+        GameObject backToHubButton;
         bool gameRunning;
 
         // Start is called before the first frame update
         void Start()
         {
             // Reset game state
+            // Reset players' health
+            // Start countdown
         }
 
         // Update is called once per frame
@@ -28,17 +32,26 @@ namespace PassBy
             if (gameRunning)
             {
                 // Check both players' health. If 0 or less, output whether player 1 wins or loses.
-                if (p1HealthBarSlider.value <= 0)
+                if (p1HealthBarSlider.value <= 0 && p2HealthBarSlider.value <= 0)
+                {
+                    Debug.LogWarning("Players drew"); // Unsure how to treat this case... maybe win streak is unaffected?
+                    middleText.text = "Draw";
+                    gameRunning = false;
+                    backToHubButton.SetActive(true);
+                }
+                else if (p1HealthBarSlider.value <= 0)
                 {
                     // P1 loses
                     middleText.text = "Defeat...";
                     gameRunning = false;
+                    backToHubButton.SetActive(true);
                 }
                 else if (p2HealthBarSlider.value <= 0)
                 {
                     // P1 wins
                     middleText.text = "Victory!";
                     gameRunning = false;
+                    backToHubButton.SetActive(true);
                 }
                 if (Input.touchCount > 0)
                 {
