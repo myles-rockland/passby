@@ -13,8 +13,8 @@ namespace PassBy
     public class PlayerController : MonoBehaviour
     {
         public static PlayerController Instance { get; private set; }
-        private Passerby passerby;
-        private List<Passerby> passerbyCollection;
+        public Passerby Passerby { get; private set; }
+        public List<Passerby> passerbyCollection;
         UnityEvent nearbyPlayerFound;
         string serverUrl = "http://10.86.73.162:5000"; // 10.86.73.162
 
@@ -31,17 +31,17 @@ namespace PassBy
         }
         private void Start()
         {
-            passerby = new Passerby();
+            Passerby = new Passerby();
             passerbyCollection = new List<Passerby>();
             nearbyPlayerFound = new UnityEvent();
             nearbyPlayerFound.AddListener(onNearbyPlayerFound);
         }
 
-        public int GetId() { return passerby.ID; }
-        public string GetName() { return passerby.Name; }
+        public int GetId() { return Passerby.ID; }
+        public string GetName() { return Passerby.Name; }
         public void SetName(TMP_InputField inputField)
         {
-            passerby.Name = inputField.text;
+            Passerby.Name = inputField.text;
         }
         public List<Passerby> GetPassersby()
         {
@@ -65,14 +65,14 @@ namespace PassBy
             string leftHandColour = GameObject.Find("Left Hand").GetComponent<SpriteRenderer>().sprite.name;
             string rightHandColour = GameObject.Find("Right Hand").GetComponent<SpriteRenderer>().sprite.name;
 
-            passerby.Avatar.BodyType = bodyType;
-            passerby.Avatar.LeftHandColour = leftHandColour;
-            passerby.Avatar.RightHandColour = rightHandColour;
+            Passerby.Avatar.BodyType = bodyType;
+            Passerby.Avatar.LeftHandColour = leftHandColour;
+            Passerby.Avatar.RightHandColour = rightHandColour;
 
             // Create JSON data
             Dictionary<string, object> playerData = new Dictionary<string, object> {
-                { "Name", passerby.Name },
-                { "Avatar", passerby.Avatar },
+                { "Name", Passerby.Name },
+                { "Avatar", Passerby.Avatar },
                 { "location", location }
             };
 
@@ -92,8 +92,8 @@ namespace PassBy
                 {
                     string jsonResponse = request.downloadHandler.text;
                     Dictionary<string, int> playerIdDict = JsonConvert.DeserializeObject<Dictionary<string, int>>(jsonResponse);
-                    passerby.ID = playerIdDict["player_id"];
-                    Debug.Log($"Player id generated successfully (value is now {passerby.ID}).");
+                    Passerby.ID = playerIdDict["player_id"];
+                    Debug.Log($"Player id generated successfully (value is now {Passerby.ID}).");
                 }
             }
         }
@@ -105,7 +105,7 @@ namespace PassBy
 
         public IEnumerator GetNearbyPlayersPeriodically()
         {
-            while (passerby.ID < 0)
+            while (Passerby.ID < 0)
             {
                 yield return null;
             }
@@ -120,7 +120,7 @@ namespace PassBy
         {
             // Create JSON data
             Dictionary<string, object> playerData = new Dictionary<string, object> {
-                { "player_id", passerby.ID },
+                { "player_id", Passerby.ID },
                 { "latitude", Input.location.lastData.latitude },
                 { "longitude", Input.location.lastData.longitude }
             };

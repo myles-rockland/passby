@@ -16,14 +16,54 @@ namespace PassBy
         TMP_Text middleText;
         [SerializeField]
         GameObject backToHubButton;
+        [SerializeField]
+        GameObject startButton;
+        [SerializeField]
+        GameObject p1Avatar;
+        [SerializeField]
+        GameObject p2Avatar;
         bool gameRunning;
 
         // Start is called before the first frame update
         void Start()
         {
-            // Reset game state
-            // Reset players' health
-            // Start countdown
+            // Set P1 Avatar to player's avatar
+            // Body
+            SpriteRenderer p1Body = p1Avatar.transform.GetChild(0).GetComponent<SpriteRenderer>();
+            string player1Body = PlayerController.Instance.Passerby.Avatar.BodyType;
+            p1Body.sprite = Resources.Load<Sprite>("Art/kenney_shape-characters/PNG/Default/" + player1Body);
+            // Left Hand
+            SpriteRenderer p1LeftHand = p1Avatar.transform.GetChild(2).GetComponent<SpriteRenderer>();
+            string player1LeftHand = PlayerController.Instance.Passerby.Avatar.LeftHandColour;
+            p1LeftHand.sprite = Resources.Load<Sprite>("Art/kenney_shape-characters/PNG/Default/" + player1LeftHand);
+            // Right Hand
+            SpriteRenderer p1RightHand = p1Avatar.transform.GetChild(3).GetComponent<SpriteRenderer>();
+            string player1RightHand = PlayerController.Instance.Passerby.Avatar.RightHandColour;
+            p1RightHand.sprite = Resources.Load<Sprite>("Art/kenney_shape-characters/PNG/Default/" + player1RightHand);
+
+            // If player has a passerby in collection...
+            if (PlayerController.Instance.passerbyCollection.Count > 0) 
+            {
+                // Set player2 to first passerby in collection
+                Passerby p2Passerby = PlayerController.Instance.passerbyCollection[0];
+
+                // Set P2 Avatar to passerby's avatar
+                // Body
+                SpriteRenderer p2Body = p1Avatar.transform.GetChild(0).GetComponent<SpriteRenderer>();
+                string player2Body = p2Passerby.Avatar.BodyType;
+                p2Body.sprite = Resources.Load<Sprite>("Art/kenney_shape-characters/PNG/Default/" + player2Body);
+                // Left Hand
+                SpriteRenderer p2LeftHand = p1Avatar.transform.GetChild(2).GetComponent<SpriteRenderer>();
+                string player2LeftHand = p2Passerby.Avatar.LeftHandColour;
+                p2LeftHand.sprite = Resources.Load<Sprite>("Art/kenney_shape-characters/PNG/Default/" + player2LeftHand);
+                // Right Hand
+                SpriteRenderer p2RightHand = p1Avatar.transform.GetChild(3).GetComponent<SpriteRenderer>();
+                string player2RightHand = p2Passerby.Avatar.RightHandColour;
+                p2RightHand.sprite = Resources.Load<Sprite>("Art/kenney_shape-characters/PNG/Default/" + player2RightHand);
+
+                // Enable Start button
+                startButton.SetActive(true);
+            }
         }
 
         // Update is called once per frame
