@@ -63,6 +63,9 @@ namespace PassBy
 
                 // Enable Start button
                 startButton.SetActive(true);
+
+                // Enable P2 Avatar
+                p2Avatar.SetActive(true);
             }
         }
 
