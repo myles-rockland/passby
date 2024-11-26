@@ -2269,8 +2269,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Enter your name
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: dfbbf014fab3983448a092c544ed5d9a, type: 2}
-  m_sharedMaterial: {fileID: -1665296938699998458, guid: dfbbf014fab3983448a092c544ed5d9a, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: d84203c4693cc9244b5a9be8a2b04b7c, type: 2}
+  m_sharedMaterial: {fileID: -5203247638140097418, guid: d84203c4693cc9244b5a9be8a2b04b7c, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -2300,7 +2300,7 @@ MonoBehaviour:
   m_enableAutoSizing: 1
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 2
+  m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
