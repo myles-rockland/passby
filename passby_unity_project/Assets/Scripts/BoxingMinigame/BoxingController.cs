@@ -22,6 +22,8 @@ namespace PassBy
         GameObject p1Avatar;
         [SerializeField]
         GameObject p2Avatar;
+        [SerializeField]
+        List<AudioClip> punchSfxs;
         bool gameRunning;
 
         // Start is called before the first frame update
@@ -102,6 +104,12 @@ namespace PassBy
                     if (touch.phase == TouchPhase.Began)
                     {
                         p2HealthBarSlider.value--;
+                        // Play random punch sfx
+                        int index = Random.Range(0, punchSfxs.Count);
+                        AudioClip punchSfx = punchSfxs[index];
+                        AudioSource audioSource = GetComponent<AudioSource>();
+                        audioSource.clip = punchSfx;
+                        audioSource.Play();
                     }
                 }
             }

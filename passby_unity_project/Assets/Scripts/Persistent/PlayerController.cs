@@ -16,7 +16,7 @@ namespace PassBy
         public Passerby Passerby { get; private set; }
         public List<Passerby> passerbyCollection;
         UnityEvent nearbyPlayerFound;
-        string serverUrl = "http://10.254.108.43:5000"; // 10.86.73.162
+        string serverUrl = "http://10.254.108.10:5000"; // 10.86.73.162
 
         void Awake()
         {
