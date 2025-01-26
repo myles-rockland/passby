@@ -8,10 +8,13 @@ namespace PassBy
 {
     public class BoxingController : MonoBehaviour
     {
+        public static BoxingController Instance { get; private set; }
         [SerializeField]
         Slider p1HealthBarSlider;
         [SerializeField]
         Slider p2HealthBarSlider;
+        [SerializeField]
+        TMP_Text winStreakText;
         [SerializeField]
         TMP_Text middleText;
         [SerializeField]
@@ -25,10 +28,28 @@ namespace PassBy
         [SerializeField]
         List<AudioClip> punchSfxs;
         bool gameRunning;
+        int winStreak;
+
+        void Awake()
+        {
+            if (Instance != null && Instance != this)
+            {
+                Destroy(gameObject); // Prevent duplicates
+                return;
+            }
+
+            Instance = this;
+        }
 
         // Start is called before the first frame update
         void Start()
         {
+            // Load save, including boxing data
+            SaveController.Instance.Load();
+
+            // Set win streak text
+            winStreakText.text = $"Win Streak: {winStreak}";
+
             // Set P1 Avatar to player's avatar
             // Body
             SpriteRenderer p1Body = p1Avatar.transform.GetChild(0).GetComponent<SpriteRenderer>();
@@ -63,11 +84,11 @@ namespace PassBy
                 string player2RightHand = p2Passerby.Avatar.RightHandColour;
                 p2RightHand.sprite = Resources.Load<Sprite>("Art/kenney_shape-characters/PNG/Default/" + player2RightHand);
 
-                // Enable Start button
-                startButton.SetActive(true);
-
                 // Enable P2 Avatar
                 p2Avatar.SetActive(true);
+
+                // Enable Start button
+                startButton.SetActive(true);
             }
         }
 
@@ -76,7 +97,7 @@ namespace PassBy
         {
             if (gameRunning)
             {
-                // Check both players' health. If 0 or less, output whether player 1 wins or loses.
+                // Check game end conditions via both players' health. If 0 or less, output whether player 1 wins or loses.
                 if (p1HealthBarSlider.value <= 0 && p2HealthBarSlider.value <= 0)
                 {
                     Debug.LogWarning("Players drew"); // Unsure how to treat this case... maybe win streak is unaffected?
@@ -90,6 +111,9 @@ namespace PassBy
                     middleText.text = "Defeat...";
                     gameRunning = false;
                     backToHubButton.SetActive(true);
+                    winStreak = 0;
+                    winStreakText.text = $"Win Streak: {winStreak}";
+                    SaveController.Instance.Save();
                 }
                 else if (p2HealthBarSlider.value <= 0)
                 {
@@ -97,7 +121,12 @@ namespace PassBy
                     middleText.text = "Victory!";
                     gameRunning = false;
                     backToHubButton.SetActive(true);
+                    winStreak++;
+                    winStreakText.text = $"Win Streak: {winStreak}";
+                    SaveController.Instance.Save();
                 }
+
+                // Check inputs
                 if (Input.touchCount > 0)
                 {
                     Touch touch = Input.GetTouch(0);
@@ -143,5 +172,20 @@ namespace PassBy
                 p1HealthBarSlider.value--;
             }
         }
+
+        public void Save(ref BoxingData boxingData)
+        {
+            boxingData.winStreak = winStreak;
+        }
+        public void Load(BoxingData boxingData)
+        {
+            winStreak = boxingData.winStreak;
+        }
+    }
+
+    [System.Serializable]
+    public struct BoxingData
+    {
+        public int winStreak;
     }
 }

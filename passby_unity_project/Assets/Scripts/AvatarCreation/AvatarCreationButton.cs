@@ -14,6 +14,7 @@ namespace PassBy
         {
             PlayerController.Instance.SetName(inputField);
             PlayerController.Instance.StartGeneratePlayerId();
+            SaveController.Instance.Save();
             SceneController.Instance.LoadScene("MainHub");
         }
     }

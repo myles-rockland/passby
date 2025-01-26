@@ -23,7 +23,15 @@ namespace PassBy
         }
         void Start()
         {
-            SceneManager.LoadSceneAsync("AvatarCreation", LoadSceneMode.Additive); // Load AvatarCreation scene on top of Persistent scene
+            if(SaveController.Instance.SaveExists())
+            {
+                SaveController.Instance.Load();
+                SceneManager.LoadSceneAsync("MainHub", LoadSceneMode.Additive); // Load MainHub scene on top of Persistent scene
+            }
+            else
+            {
+                SceneManager.LoadSceneAsync("AvatarCreation", LoadSceneMode.Additive); // Load AvatarCreation scene on top of Persistent scene
+            }
         }
 
         public void LoadScene(string sceneName)

@@ -16,7 +16,7 @@ namespace PassBy
         public Passerby Passerby { get; private set; }
         public List<Passerby> passerbyCollection;
         UnityEvent nearbyPlayerFound;
-        string serverUrl = "http://10.254.108.10:5000"; // 10.86.73.162
+        string serverUrl = "http://10.254.95.248:5000"; // 10.86.77.80 at home // 10.254.95.248 on campus
 
         void Awake()
         {
@@ -94,6 +94,7 @@ namespace PassBy
                     Dictionary<string, int> playerIdDict = JsonConvert.DeserializeObject<Dictionary<string, int>>(jsonResponse);
                     Passerby.ID = playerIdDict["player_id"];
                     Debug.Log($"Player id generated successfully (value is now {Passerby.ID}).");
+                    SaveController.Instance.Save();
                 }
             }
         }
@@ -170,6 +171,8 @@ namespace PassBy
                             nearbyPlayerFound.Invoke();
                             NotificationController.Instance.SendPassbyNotification("New PasserBy!", "You passed by someone"); // Should specify who using their name. Could also be several people at once
                         }
+
+                        SaveController.Instance.Save();
                     }
                 }
             }
@@ -180,5 +183,24 @@ namespace PassBy
         {
             SceneController.Instance.FillAvatarCollection();
         }
+
+        public void Save(ref PlayerData playerData)
+        {
+            playerData.Passerby = Passerby;
+            playerData.PasserbyCollection = passerbyCollection;
+        }
+        
+        public void Load(PlayerData playerData)
+        {
+            Passerby = playerData.Passerby;
+            passerbyCollection = playerData.PasserbyCollection;
+        }
+    }
+
+    [System.Serializable]
+    public struct PlayerData
+    {
+        public Passerby Passerby;
+        public List<Passerby> PasserbyCollection;
     }
 }
