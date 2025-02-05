@@ -16,7 +16,7 @@ namespace PassBy
         public Passerby Passerby { get; private set; }
         public List<Passerby> passerbyCollection;
         UnityEvent nearbyPlayerFound;
-        string serverUrl = "http://10.254.95.248:5000"; // 10.86.77.80 at home // 10.254.95.248 on campus
+        string serverUrl = "http://10.86.77.80:5000"; // 10.86.77.80 at home
 
         void Awake()
         {
@@ -55,6 +55,8 @@ namespace PassBy
 
         public IEnumerator GeneratePlayerId() // Send a request to the web server for a unique player id
         {
+            Debug.Log("Generating Player ID");
+
             // Create dictionaries
             Dictionary<string, float> location = new Dictionary<string, float> {
                 { "latitude", Input.location.lastData.latitude },

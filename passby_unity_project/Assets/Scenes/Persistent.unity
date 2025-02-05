@@ -152,8 +152,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   saveData:
-    PlayerData:
+    playerData:
       PasserbyCollection: []
+    boxingData:
+      winStreak: 0
 --- !u!4 &196850230
 Transform:
   m_ObjectHideFlags: 0
@@ -331,6 +333,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d8442ed3459fe8f439c38ec4a1925099, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  cellPrefab: {fileID: 4640313470176771172, guid: d7f58e6cb7e6cf34c9dbcf90b280efec, type: 3}
 --- !u!4 &1740619137
 Transform:
   m_ObjectHideFlags: 0

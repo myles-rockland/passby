@@ -72,15 +72,15 @@ namespace PassBy
 
                 // Set P2 Avatar to passerby's avatar
                 // Body
-                SpriteRenderer p2Body = p1Avatar.transform.GetChild(0).GetComponent<SpriteRenderer>();
+                SpriteRenderer p2Body = p2Avatar.transform.GetChild(0).GetComponent<SpriteRenderer>();
                 string player2Body = p2Passerby.Avatar.BodyType;
                 p2Body.sprite = Resources.Load<Sprite>("Art/kenney_shape-characters/PNG/Default/" + player2Body);
                 // Left Hand
-                SpriteRenderer p2LeftHand = p1Avatar.transform.GetChild(2).GetComponent<SpriteRenderer>();
+                SpriteRenderer p2LeftHand = p2Avatar.transform.GetChild(2).GetComponent<SpriteRenderer>();
                 string player2LeftHand = p2Passerby.Avatar.LeftHandColour;
                 p2LeftHand.sprite = Resources.Load<Sprite>("Art/kenney_shape-characters/PNG/Default/" + player2LeftHand);
                 // Right Hand
-                SpriteRenderer p2RightHand = p1Avatar.transform.GetChild(3).GetComponent<SpriteRenderer>();
+                SpriteRenderer p2RightHand = p2Avatar.transform.GetChild(3).GetComponent<SpriteRenderer>();
                 string player2RightHand = p2Passerby.Avatar.RightHandColour;
                 p2RightHand.sprite = Resources.Load<Sprite>("Art/kenney_shape-characters/PNG/Default/" + player2RightHand);
 

@@ -78,9 +78,6 @@ namespace PassBy
             {
                 BoxingController.Instance.Load(saveData.boxingData);
             }
-            // Add some way to load the boxing data
-            // Need an instance of the boxing controller to access its Save and Load methods
-            // But currently, the instance only exists when the boxing scene is loaded
         }
     }
 }

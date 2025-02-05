@@ -39,7 +39,7 @@ namespace PassBy
             // If the service didn't initialize in 20 seconds this cancels location service use.
             if (maxWait < 1)
             {
-                Debug.Log("Timed out");
+                Debug.Log("Location Service initialisation timed out, and will remain unavailable.");
                 yield break;
             }
 
