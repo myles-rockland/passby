@@ -9,8 +9,8 @@ app = Flask(__name__)
 # Dictionary to store player data
 players_data = {}
 
-# Proximity radius in meters
-PROXIMITY_RADIUS = 10
+# Proximity radius in meters, determines if players have passed by each other
+PROXIMITY_RADIUS = 30
 # Update frequency in seconds
 UPDATE_FREQUENCY = 100
 
@@ -69,6 +69,7 @@ def get_nearby_players():
         # Calculate the distance
         other_position = (info["location"]["latitude"], info["location"]["longitude"])
         distance = geodesic(current_position, other_position).meters
+        print(f"Distance between {players_data[player_id]["Name"]} and {name} is {distance}m")
 
         # Calculate update timing difference between players
         other_timestamp = info["timestamp"]
