@@ -64,11 +64,13 @@ namespace PassBy
             string player1RightHand = PlayerController.Instance.Passerby.Avatar.RightHandColour;
             p1RightHand.sprite = Resources.Load<Sprite>("Art/kenney_shape-characters/PNG/Default/" + player1RightHand);
 
-            // If player has a passerby in collection...
-            if (PlayerController.Instance.passerbyCollection.Count > 0) 
+            // Get the active passerby queue
+            Queue<Passerby> activePasserbyQueue = PlayerController.Instance.GetActivePasserbyQueue();
+            // If player has a passerby in their active queue...
+            if (activePasserbyQueue.Count > 0) 
             {
-                // Set player2 to first passerby in collection
-                Passerby p2Passerby = PlayerController.Instance.passerbyCollection[0];
+                // Set player2 to first passerby in the queue, and remove that passerby from the queue
+                Passerby p2Passerby = activePasserbyQueue.Dequeue();
 
                 // Set P2 Avatar to passerby's avatar
                 // Body

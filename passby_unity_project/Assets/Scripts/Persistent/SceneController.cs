@@ -62,9 +62,20 @@ namespace PassBy
                 Debug.Log("In the MainHub scene!");
                 GameObject scrollViewContent = GameObject.Find("/Canvas/Avatar Scroll View/Viewport/Content");
                 if (scrollViewContent == null)
+                {
                     Debug.LogError("Couldn't find Content object");
+                    return;
+                }
                 else
+                {
                     Debug.Log("Found the Content object");
+                }
+
+                // Destroy children (cells in grid that contain avatars) before adding new avatars
+                foreach (Transform child in scrollViewContent.transform)
+                {
+                    Destroy(child.gameObject);
+                }
 
                 // Edit displayed avatar with new sprites of selected avatar
                 GameObject displayedAvatar = GameObject.Find("Displayed Avatar");
@@ -88,9 +99,9 @@ namespace PassBy
                 TMP_Text details = GameObject.Find("Avatar Details Text").GetComponent<TMP_Text>(); // .Find() needs to be replaced!
                 details.text = $"Welcome, {PlayerController.Instance.Passerby.Name}";
 
-                for (int i = 0; i < PlayerController.Instance.passerbyCollection.Count; i++)
+                for (int i = 0; i < PlayerController.Instance.GetPasserbyCollection().Count; i++)
                 {
-                    Passerby passerby = PlayerController.Instance.passerbyCollection[i];
+                    Passerby passerby = PlayerController.Instance.GetPasserbyCollection()[i];
 
                     // Grid Cell from prefab
                     GameObject gridCell = Instantiate(cellPrefab, scrollViewContent.transform);

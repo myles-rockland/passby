@@ -14,9 +14,11 @@ namespace PassBy
     {
         public static PlayerController Instance { get; private set; }
         public Passerby Passerby { get; private set; }
-        public List<Passerby> passerbyCollection;
+        private List<Passerby> passerbyCollection;
+        private Queue<Passerby> activePasserbyQueue;
+        private float lastPassbyTimestamp;
         UnityEvent nearbyPlayerFound;
-        string serverUrl = "http://10.86.77.80:5000"; // 10.86.77.80 at home
+        string serverUrl = "http://172.20.10.3:5000"; // 10.86.77.80 at home
 
         void Awake()
         {
@@ -33,6 +35,8 @@ namespace PassBy
         {
             Passerby = new Passerby();
             passerbyCollection = new List<Passerby>();
+            activePasserbyQueue = new Queue<Passerby>();
+            lastPassbyTimestamp = Time.unscaledTime;
             nearbyPlayerFound = new UnityEvent();
             nearbyPlayerFound.AddListener(onNearbyPlayerFound);
         }
@@ -43,11 +47,14 @@ namespace PassBy
         {
             Passerby.Name = inputField.text;
         }
-        public List<Passerby> GetPassersby()
+        public List<Passerby> GetPasserbyCollection()
         {
             return passerbyCollection;
         }
-
+        public Queue<Passerby> GetActivePasserbyQueue()
+        {
+            return activePasserbyQueue;
+        }
         public void StartGeneratePlayerId()
         {
             StartCoroutine(GeneratePlayerId());
@@ -116,6 +123,38 @@ namespace PassBy
             {
                 yield return StartCoroutine(GetNearbyPlayers());
                 yield return new WaitForSecondsRealtime(7.5f);
+                // If the last passby was over 600 seconds ago...
+                if(Time.unscaledTime - 30.0f > lastPassbyTimestamp) // 30 seconds for debugging
+                {
+                    // ...give the player a fake passerby
+                    Passerby fakePasserby = FakeAvatarController.Instance.GetRandomFakePasserby();
+
+                    // Get list of IDs of passersby already in collection
+                    List<int> collectedPasserbyIds = new List<int>();
+                    foreach (Passerby passerby in passerbyCollection)
+                    {
+                        Debug.Log($"ID of passerby in collection: {passerby.ID}");
+                        collectedPasserbyIds.Add(passerby.ID);
+                    }
+
+                    // If the ID of the fake passerby is not in the list of fake IDs of passersby in the player's collection, then add the fake passerby to the player's collection
+                    if (!collectedPasserbyIds.Contains(fakePasserby.ID))
+                    {
+                        Debug.Log($"Collection apparently does not contain passerby with ID {fakePasserby.ID}");
+                        passerbyCollection.Add(fakePasserby);
+                    }
+
+                    // Enqueue it for minigames
+                    activePasserbyQueue.Enqueue(fakePasserby);
+
+                    // Send the player a notification
+                    nearbyPlayerFound.Invoke();
+                    NotificationController.Instance.SendPassbyNotification("New PasserBy!", "You passed by someone"); // Should specify who using their name. But could also be several people at once
+                    lastPassbyTimestamp = Time.unscaledTime;
+
+                    // Save
+                    SaveController.Instance.Save();
+                }
             }
         }
 
@@ -157,12 +196,13 @@ namespace PassBy
                         }
 
                         bool newPasserbyCollected = false;
-                        foreach (Passerby passerby in nearbyPlayers.Values)
+                        foreach (Passerby passerby in nearbyPlayers.Values) // Currently doesn't work for passing by the same person multiple times
                         {
 
                             if(!collectedPasserbyIds.Contains(passerby.ID))
                             {
                                 passerbyCollection.Add(passerby);
+                                activePasserbyQueue.Enqueue(passerby);
                                 newPasserbyCollected = true;
                                 Debug.Log($"Added {passerby.Name} to collection!");
                             }
@@ -171,7 +211,8 @@ namespace PassBy
                         if (newPasserbyCollected)
                         {
                             nearbyPlayerFound.Invoke();
-                            NotificationController.Instance.SendPassbyNotification("New PasserBy!", "You passed by someone"); // Should specify who using their name. Could also be several people at once
+                            NotificationController.Instance.SendPassbyNotification("New PasserBy!", "You passed by someone"); // Should specify who using their name. But could also be several people at once
+                            lastPassbyTimestamp = Time.unscaledTime;
                         }
 
                         SaveController.Instance.Save();
@@ -190,12 +231,14 @@ namespace PassBy
         {
             playerData.Passerby = Passerby;
             playerData.PasserbyCollection = passerbyCollection;
+            playerData.ActivePasserbyQueue = activePasserbyQueue;
         }
         
         public void Load(PlayerData playerData)
         {
             Passerby = playerData.Passerby;
             passerbyCollection = playerData.PasserbyCollection;
+            activePasserbyQueue = playerData.ActivePasserbyQueue;
         }
     }
 
@@ -204,5 +247,6 @@ namespace PassBy
     {
         public Passerby Passerby;
         public List<Passerby> PasserbyCollection;
+        public Queue<Passerby> ActivePasserbyQueue;
     }
 }
