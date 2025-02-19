@@ -146,10 +146,14 @@ namespace PassBy
                         leftHandImage.sprite = leftHand.GetComponent<Image>().sprite;
                         rightHandImage.sprite = rightHand.GetComponent<Image>().sprite;
 
-                        // Edit TMP_Text with details of now selected avatar
+                        // Edit avatar details text with details of now selected avatar
                         TMP_Text details = GameObject.Find("Avatar Details Text").GetComponent<TMP_Text>(); // .Find() needs to be replaced!
                         details.text = $"Name: {passerby.Name}\nInterests: ?\nPassed by: ? times"; // Replace ? with actual details
                     });
+
+                    // Edit passersby counter text with number of passersby in collection
+                    TMP_Text passersbyCounter = GameObject.Find("Passersby Text").GetComponent<TMP_Text>(); // .Find() needs to be replaced!
+                    passersbyCounter.text = $"Passersby: {PlayerController.Instance.GetPasserbyCollection().Count}";
 
                     // Canvas avatar from grid cell prefab
                     GameObject avatar = gridCell.transform.GetChild(0).gameObject;
