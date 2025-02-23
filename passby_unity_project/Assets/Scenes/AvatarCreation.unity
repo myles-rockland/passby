@@ -3507,6 +3507,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Avatar
       objectReference: {fileID: 0}
+    - target: {fileID: 183303010066651107, guid: 51096bf319eaa6146924b6f79060b405, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 2078475632349896493, guid: 51096bf319eaa6146924b6f79060b405, type: 3}
       propertyPath: m_LocalScale.x
       value: 2.5

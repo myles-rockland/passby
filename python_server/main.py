@@ -27,7 +27,9 @@ def generate_player_id():
         "Name": name,
         "Avatar": avatar,
         "location": location,
-        "timestamp": time.time()
+        "timestamp": time.time(),
+        "incoming_friend_requests": {},
+        "outgoing_friend_requests": {}
     }
 
     print(players_data)
@@ -75,6 +77,7 @@ def get_nearby_players():
         other_timestamp = info["timestamp"]
         time_difference = current_timestamp - other_timestamp
 
+        # If other player is nearby, add them to nearby players dict
         if distance <= PROXIMITY_RADIUS and time_difference <= UPDATE_FREQUENCY:
             nearby_players[other_id] = {
                 "ID": other_id,
@@ -84,6 +87,69 @@ def get_nearby_players():
             print(players_data[player_id]["Name"] + " passed by " + name)
 
     return jsonify(nearby_players), 200
+
+@app.route('/get_incoming_friend_requests', methods=['POST'])
+def get_incoming_friend_requests():
+    data = request.get_json()
+    player_id = data.get("player_id")
+
+    return jsonify(players_data[player_id]["incoming_friend_requests"]), 200
+
+@app.route('/get_outgoing_friend_requests', methods=['POST'])
+def get_outgoing_friend_requests():
+    data = request.get_json()
+    player_id = data.get("player_id")
+
+    # Save current outgoing requests
+    response = jsonify(players_data[player_id]["outgoing_friend_requests"])
+
+    to_remove = []
+
+    # Loop through all outgoing requests
+    for key in players_data[player_id]["outgoing_friend_requests"].keys():
+        # If an outgoing request is not pending (i.e. "accepted" or "rejected"), add the key to a list for later removal
+        if players_data[player_id]["outgoing_friend_requests"][key] != "pending":
+            to_remove.append(key)
+
+    # Delete outgoing requests using keys in list
+    for key in to_remove:
+        players_data[player_id]["outgoing_friend_requests"].pop(key)
+            
+    # Return outgoing requests for processing by client
+    return response, 200
+
+@app.route('/send_friend_request', methods=['POST'])
+def send_friend_request():
+    data = request.get_json()
+    sender_id = data.get("sender_id")
+    recipient_id = data.get("recipient_id")
+
+    # Append current friend request to recipient's incoming requests
+    players_data[recipient_id]["incoming_friend_requests"][sender_id] = "pending"
+
+    # Append current friend request to sender's outgoing requests
+    players_data[sender_id]["outgoing_friend_requests"][recipient_id] = "pending"
+
+    print(f"{players_data[sender_id]['Name']} sent a friend request to {players_data[recipient_id]['Name']}")
+
+    return "Friend request sent!", 200
+
+@app.route('/respond_to_friend_request', methods=['POST'])
+def respond_to_friend_request():
+    data = request.get_json()
+    sender_id = data.get("sender_id")
+    recipient_id = data.get("recipient_id")
+    accepted = data.get("accepted")
+
+    # Set to accepted/declined for processing by sender
+    if accepted:
+        players_data[recipient_id]["incoming_friend_requests"][sender_id] = "accepted"
+        players_data[sender_id]["outgoing_friend_requests"][recipient_id] = "accepted"
+    else:
+        players_data[recipient_id]["incoming_friend_requests"][sender_id] = "declined"
+        players_data[sender_id]["outgoing_friend_requests"][recipient_id] = "declined"
+
+    return "Friend request processed!", 200
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)

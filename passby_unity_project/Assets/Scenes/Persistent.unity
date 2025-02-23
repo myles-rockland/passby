@@ -154,6 +154,8 @@ MonoBehaviour:
   saveData:
     playerData:
       PasserbyCollection: []
+      FriendsList: []
+      PendingFriendRequests: 
     boxingData:
       winStreak: 0
 --- !u!4 &196850230
@@ -377,6 +379,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cellPrefab: {fileID: 4640313470176771172, guid: d7f58e6cb7e6cf34c9dbcf90b280efec, type: 3}
+  frCellPrefab: {fileID: 3636538884213825647, guid: aa1a6f03d75c115409785ecffc2254c0, type: 3}
 --- !u!4 &1740619137
 Transform:
   m_ObjectHideFlags: 0

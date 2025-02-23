@@ -7,6 +7,7 @@ using UnityEngine.UI;
 using Newtonsoft.Json;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
+using Unity.VisualScripting;
 
 namespace PassBy
 {
@@ -15,6 +16,9 @@ namespace PassBy
         public static PlayerController Instance { get; private set; }
         public Passerby Passerby { get; private set; }
         private List<Passerby> passerbyCollection;
+        private List<Passerby> friendsList;
+        private List<int> incomingFriendRequests;
+        private List<int> outgoingFriendRequests;
         private Queue<Passerby> activePasserbyQueue;
         private float lastPassbyTimestamp;
         UnityEvent nearbyPlayerFound;
@@ -35,6 +39,9 @@ namespace PassBy
         {
             Passerby = new Passerby();
             passerbyCollection = new List<Passerby>();
+            friendsList = new List<Passerby>();
+            incomingFriendRequests = new List<int>();
+            outgoingFriendRequests = new List<int>();
             activePasserbyQueue = new Queue<Passerby>();
             lastPassbyTimestamp = Time.unscaledTime;
             nearbyPlayerFound = new UnityEvent();
@@ -51,9 +58,25 @@ namespace PassBy
         {
             return passerbyCollection;
         }
+        public List<Passerby> GetFriendsList()
+        {
+            return friendsList;
+        }
+        public List<int> GetIncomingFriendRequests()
+        {
+            return incomingFriendRequests;
+        }
+        public List<int> GetOutgoingFriendRequests()
+        {
+            return outgoingFriendRequests;
+        }
         public Queue<Passerby> GetActivePasserbyQueue()
         {
             return activePasserbyQueue;
+        }
+        public string GetServerURL()
+        {
+            return serverUrl;
         }
         public void StartGeneratePlayerId()
         {
@@ -149,7 +172,7 @@ namespace PassBy
 
                     // Send the player a notification
                     nearbyPlayerFound.Invoke();
-                    NotificationController.Instance.SendPassbyNotification("New PasserBy!", "You passed by someone"); // Should specify who using their name. But could also be several people at once
+                    NotificationController.Instance.SendPassbyNotification("New PasserBy!", "You passed by someone"); // Should specify who using their name
                     lastPassbyTimestamp = Time.unscaledTime;
 
                     // Save
@@ -227,10 +250,141 @@ namespace PassBy
             SceneController.Instance.FillAvatarCollection();
         }
 
+        public void StartGetFriendRequestsPeriodically()
+        {
+            StartCoroutine(GetFriendRequestsPeriodically());
+        }
+
+        public IEnumerator GetFriendRequestsPeriodically()
+        {
+            while (Passerby.ID < 0)
+            {
+                yield return null;
+            }
+            while (true)
+            {
+                yield return StartCoroutine(FetchIncomingFriendRequests());
+                yield return StartCoroutine(FetchOutgoingFriendRequests());
+                yield return new WaitForSeconds(30.0f);
+            }
+        }
+
+        public IEnumerator FetchIncomingFriendRequests()
+        {
+            // Create JSON data
+            Dictionary<string, object> playerData = new Dictionary<string, object> {
+                { "player_id", Passerby.ID }
+            };
+
+            string playerJsonData = JsonConvert.SerializeObject(playerData);
+
+            // Send POST request to get nearby players
+            string contentType = "application/json";
+            using (UnityWebRequest request = UnityWebRequest.Post($"{serverUrl}/get_incoming_friend_requests", playerJsonData, contentType))
+            {
+                yield return request.SendWebRequest();
+
+                if (request.result != UnityWebRequest.Result.Success)
+                {
+                    Debug.LogError("Error getting incoming friend requests: " + request.error);
+                }
+                else
+                {
+                    string jsonResponse = request.downloadHandler.text;
+                    Dictionary<int, string> friendRequests = JsonConvert.DeserializeObject<Dictionary<int, string>>(jsonResponse);
+                    if (friendRequests.Count > 0)
+                    {
+                        Debug.Log("Friend request successfully found.");
+
+                        // Get IDs of all passersby in player's collection
+                        List<int> collectedPasserbyIds = new List<int>();
+                        foreach (Passerby passerby in passerbyCollection)
+                        {
+                            collectedPasserbyIds.Add(passerby.ID);
+                        }
+
+                        // Add new friend requests to pending friend requests
+                        foreach (int playerId in friendRequests.Keys)
+                        {
+                            if(collectedPasserbyIds.Contains(playerId) && !incomingFriendRequests.Contains(playerId))
+                            {
+                                incomingFriendRequests.Add(playerId);
+                            }
+                        }
+
+                        NotificationController.Instance.SendPassbyNotification("New Friend Request!", "Someone sent you a friend request"); // Should probably specify who...
+                        SaveController.Instance.Save();
+                    }
+                }
+            }
+            yield break;
+        }
+
+        public IEnumerator FetchOutgoingFriendRequests()
+        {
+            // Create JSON data
+            Dictionary<string, object> playerData = new Dictionary<string, object> {
+                { "player_id", Passerby.ID }
+            };
+
+            string playerJsonData = JsonConvert.SerializeObject(playerData);
+
+            // Send POST request to get nearby players
+            string contentType = "application/json";
+            using (UnityWebRequest request = UnityWebRequest.Post($"{serverUrl}/get_outgoing_friend_requests", playerJsonData, contentType))
+            {
+                yield return request.SendWebRequest();
+
+                if (request.result != UnityWebRequest.Result.Success)
+                {
+                    Debug.LogError("Error getting outgoing friend requests: " + request.error);
+                }
+                else
+                {
+                    string jsonResponse = request.downloadHandler.text;
+                    Dictionary<int, string> friendRequests = JsonConvert.DeserializeObject<Dictionary<int, string>>(jsonResponse);
+                    if (friendRequests.Count > 0)
+                    {
+                        Debug.Log("Outgoing friend request successfully found.");
+
+                        // Add accepted friend to friends list
+                        foreach (KeyValuePair<int, string> friendRequest in friendRequests)
+                        {
+                            foreach (Passerby passerby in passerbyCollection)
+                            {
+                                if (friendRequest.Key == passerby.ID && friendRequest.Value.Equals("accepted"))
+                                {
+                                    friendsList.Add(passerby);
+                                    NotificationController.Instance.SendPassbyNotification("Friend Request Accepted!", $"You are now friends with {passerby.Name}");
+                                    break; // This indicates it should be a while (conditional) loop instead
+                                }
+                            }
+                        }
+
+                        // Remove accepted & declined requests from pending
+                        outgoingFriendRequests.Clear();
+                        foreach (KeyValuePair<int, string> friendRequest in friendRequests)
+                        {
+                            if (friendRequest.Value.Equals("pending"))
+                            {
+                                outgoingFriendRequests.Add(friendRequest.Key);
+                            }
+                        }
+
+                        SaveController.Instance.Save();
+                    }
+                }
+            }
+            yield break;
+        }
+
         public void Save(ref PlayerData playerData)
         {
             playerData.Passerby = Passerby;
             playerData.PasserbyCollection = passerbyCollection;
+            playerData.FriendsList = friendsList;
+            playerData.IncomingFriendRequests = incomingFriendRequests;
+            playerData.OutgoingFriendRequests = outgoingFriendRequests;
             playerData.ActivePasserbyQueue = activePasserbyQueue;
         }
         
@@ -238,6 +392,9 @@ namespace PassBy
         {
             Passerby = playerData.Passerby;
             passerbyCollection = playerData.PasserbyCollection;
+            friendsList = playerData.FriendsList;
+            incomingFriendRequests = playerData.IncomingFriendRequests;
+            outgoingFriendRequests = playerData.OutgoingFriendRequests;
             activePasserbyQueue = playerData.ActivePasserbyQueue;
         }
     }
@@ -247,6 +404,9 @@ namespace PassBy
     {
         public Passerby Passerby;
         public List<Passerby> PasserbyCollection;
+        public List<Passerby> FriendsList;
+        public List<int> IncomingFriendRequests;
+        public List<int> OutgoingFriendRequests;
         public Queue<Passerby> ActivePasserbyQueue;
     }
 }
