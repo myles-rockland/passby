@@ -155,7 +155,8 @@ MonoBehaviour:
     playerData:
       PasserbyCollection: []
       FriendsList: []
-      PendingFriendRequests: 
+      IncomingFriendRequests: 
+      OutgoingFriendRequests: 
     boxingData:
       winStreak: 0
 --- !u!4 &196850230

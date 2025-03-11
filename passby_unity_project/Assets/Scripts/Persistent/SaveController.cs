@@ -19,6 +19,7 @@ namespace PassBy
             // Add more Data classes as necessary
             public PlayerData playerData;
             public BoxingData boxingData;
+            public RPSData rpsData;
         }
 
         private void Awake()
@@ -59,6 +60,10 @@ namespace PassBy
             {
                 BoxingController.Instance.Save(ref saveData.boxingData);
             }
+            if (RPSController.Instance != null)
+            {
+                RPSController.Instance.Save(ref saveData.rpsData);
+            }
         }
 
         public void Load()
@@ -77,6 +82,10 @@ namespace PassBy
             if(BoxingController.Instance != null)
             {
                 BoxingController.Instance.Load(saveData.boxingData);
+            }
+            if (RPSController.Instance != null)
+            {
+                RPSController.Instance.Load(saveData.rpsData);
             }
         }
     }
