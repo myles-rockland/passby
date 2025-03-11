@@ -1,6 +1,7 @@
 # Program adapted from ChatGPT response: https://chatgpt.com/share/6720f1b3-23a0-8005-833e-b4d84e186d76
 
 from flask import Flask, request, jsonify
+from waitress import serve
 from geopy.distance import geodesic
 import time
 
@@ -154,5 +155,4 @@ def respond_to_friend_request():
     return "Friend request processed!", 200
 
 if __name__ == '__main__':
-    #app.run(host='0.0.0.0', port=5000) # Used if I want to run locally for development. Not for production
-    app.run()
+    serve(app, host="0.0.0.0", port=5000)
