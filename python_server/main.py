@@ -149,7 +149,10 @@ def respond_to_friend_request():
         players_data[recipient_id]["incoming_friend_requests"][sender_id] = "declined"
         players_data[sender_id]["outgoing_friend_requests"][recipient_id] = "declined"
 
+    print(f"{players_data[recipient_id]['Name']} {players_data[recipient_id]['incoming_friend_requests'][sender_id]} {players_data[sender_id]['Name']}'s friend request") # "A accepted/declined B's friend request"
+
     return "Friend request processed!", 200
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    #app.run(host='0.0.0.0', port=5000) # Used if I want to run locally for development. Not for production
+    app.run()
