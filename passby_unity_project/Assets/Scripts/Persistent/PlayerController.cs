@@ -22,7 +22,7 @@ namespace PassBy
         private Queue<Passerby> activePasserbyQueue;
         private float lastPassbyTimestamp;
         UnityEvent nearbyPlayerFound;
-        string serverUrl = "http://10.86.77.80:5000"; // 10.86.77.80 at home
+        string serverUrl = "http://172.20.10.3:5000"; // 10.86.77.80 at home
 
         void Awake()
         {
