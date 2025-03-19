@@ -22,7 +22,7 @@ namespace PassBy
         private Queue<Passerby> activePasserbyQueue;
         private float lastPassbyTimestamp;
         UnityEvent nearbyPlayerFound;
-        string serverUrl = "http://172.20.10.3:5000"; // 10.86.77.80 at home
+        string serverUrl = "https://passby-flask-app-13dfd86af7f4.herokuapp.com"; // 10.86.77.80 at home // https://passby-flask-app-13dfd86af7f4.herokuapp.com WSGI production server?
 
         void Awake()
         {
@@ -85,48 +85,58 @@ namespace PassBy
 
         public IEnumerator GeneratePlayerId() // Send a request to the web server for a unique player id
         {
-            Debug.Log("Generating Player ID");
+            if (Passerby.ID >= 0)
+            {
+                Debug.LogWarning("Tried to generate ID, but player already has ID");
+                yield break;
+            }
+            else
+            {
+                Debug.Log("Generating Player ID");
 
-            // Create dictionaries
-            Dictionary<string, float> location = new Dictionary<string, float> {
+                // Create dictionaries
+                Dictionary<string, float> location = new Dictionary<string, float> {
                 { "latitude", Input.location.lastData.latitude },
                 { "longitude", Input.location.lastData.longitude }
             };
 
-            string bodyType = GameObject.Find("Body").GetComponent<SpriteRenderer>().sprite.name; // need a better way to get these values...
-            string leftHandColour = GameObject.Find("Left Hand").GetComponent<SpriteRenderer>().sprite.name;
-            string rightHandColour = GameObject.Find("Right Hand").GetComponent<SpriteRenderer>().sprite.name;
+                string bodyType = GameObject.Find("Canvas Avatar/Body").GetComponent<Image>().sprite.name; // need a better way to get these values...
+                Debug.Log($"Body Type: {bodyType}");
+                string leftHandColour = GameObject.Find("Left Hand").GetComponent<Image>().sprite.name;
+                string rightHandColour = GameObject.Find("Right Hand").GetComponent<Image>().sprite.name;
 
-            Passerby.Avatar.BodyType = bodyType;
-            Passerby.Avatar.LeftHandColour = leftHandColour;
-            Passerby.Avatar.RightHandColour = rightHandColour;
+                Passerby.Avatar.BodyType = bodyType;
+                Passerby.Avatar.LeftHandColour = leftHandColour;
+                Passerby.Avatar.RightHandColour = rightHandColour;
 
-            // Create JSON data
-            Dictionary<string, object> playerData = new Dictionary<string, object> {
+                // Create JSON data
+                Dictionary<string, object> playerData = new Dictionary<string, object> {
                 { "Name", Passerby.Name },
                 { "Avatar", Passerby.Avatar },
                 { "location", location }
             };
 
-            string playerJsonData = JsonConvert.SerializeObject(playerData);
+                string playerJsonData = JsonConvert.SerializeObject(playerData);
 
-            // Send POST request to get unique id
-            string contentType = "application/json";
-            using (UnityWebRequest request = UnityWebRequest.Post($"{serverUrl}/generate_player_id", playerJsonData, contentType))
-            {
-                yield return request.SendWebRequest();
+                // Send POST request to get unique id
+                string contentType = "application/json";
+                using (UnityWebRequest request = UnityWebRequest.Post($"{serverUrl}/generate_player_id", playerJsonData, contentType))
+                {
+                    yield return request.SendWebRequest();
 
-                if (request.result != UnityWebRequest.Result.Success)
-                {
-                    Debug.LogError("Error getting player id: " + request.error);
-                }
-                else
-                {
-                    string jsonResponse = request.downloadHandler.text;
-                    Dictionary<string, int> playerIdDict = JsonConvert.DeserializeObject<Dictionary<string, int>>(jsonResponse);
-                    Passerby.ID = playerIdDict["player_id"];
-                    Debug.Log($"Player id generated successfully (value is now {Passerby.ID}).");
-                    SaveController.Instance.Save();
+                    if (request.result != UnityWebRequest.Result.Success)
+                    {
+                        // TODO: Display warning on screen that game can't connect to server
+                        Debug.LogError("Error getting player id: " + request.error);
+                    }
+                    else
+                    {
+                        string jsonResponse = request.downloadHandler.text;
+                        Dictionary<string, int> playerIdDict = JsonConvert.DeserializeObject<Dictionary<string, int>>(jsonResponse);
+                        Passerby.ID = playerIdDict["player_id"];
+                        Debug.Log($"Player id generated successfully (value is now {Passerby.ID}).");
+                        SaveController.Instance.Save();
+                    }
                 }
             }
         }

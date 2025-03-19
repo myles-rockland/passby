@@ -9,13 +9,36 @@ namespace PassBy
     {
         [SerializeField]
         TMP_InputField inputField;
+        [SerializeField]
+        Animator connectionWarningAnimator;
 
         public void OnClick()
         {
+            StartCoroutine(SetPlayerDetails());
+        }
+
+        IEnumerator SetPlayerDetails()
+        {
+            connectionWarningAnimator.SetTrigger("FadeOut"); // FadeOut if needed
+            yield return new WaitForSeconds(0.5f);
+
+            // Set player details
+            Debug.Log("Setting player details");
             PlayerController.Instance.SetName(inputField);
             PlayerController.Instance.StartGeneratePlayerId();
             SaveController.Instance.Save();
-            SceneController.Instance.LoadScene("MainHub");
+
+            yield return new WaitForSeconds(0.5f); // Give the game time to connect to the server and generate a player id... race condition?
+
+            if (PlayerController.Instance.Passerby.ID < 0)
+            {
+                connectionWarningAnimator.ResetTrigger("FadeOut");
+                connectionWarningAnimator.SetTrigger("FadeIn");
+            }
+            else
+            {
+                SceneController.Instance.LoadScene("MainHub");
+            }
         }
     }
 }

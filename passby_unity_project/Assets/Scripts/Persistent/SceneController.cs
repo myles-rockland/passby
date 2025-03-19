@@ -190,7 +190,8 @@ namespace PassBy
 
                         // Edit avatar details text with details of now selected avatar
                         TMP_Text details = GameObject.Find("Avatar Details Text").GetComponent<TMP_Text>(); // .Find() needs to be replaced!
-                        details.text = $"Name: {passerby.Name}\nInterests: ?\nPassed by: ? times"; // Replace ? with actual details
+                        //details.text = $"Name: {passerby.Name}\nInterests: ?\nPassed by: ? times"; // Replace ? with actual details
+                        details.text = $"Name: {passerby.Name}"; // Temporary change to remove interests and passby counter for poster.
 
                         // Change friend request button based on friend status/friend request status
                         GameObject sendButton = GameObject.Find("/Canvas/Friend Request Buttons/Friend Request Button");
