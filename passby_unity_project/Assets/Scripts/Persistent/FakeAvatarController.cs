@@ -35,8 +35,8 @@ namespace PassBy
             Bonnie.Name = "Bonnie";
             Bonnie.ID = -1; // ID shouldn't really matter for fake passersby, so it can be negative.
             Bonnie.Avatar.BodyType = "pink_body_circle";
-            Bonnie.Avatar.LeftHandColour = "pink_hand_open";
-            Bonnie.Avatar.RightHandColour = "pink_hand_open";
+            Bonnie.Avatar.LeftHandColour = "pink_hand_closed";
+            Bonnie.Avatar.RightHandColour = "pink_hand_closed";
 
             // Set Benson passerby
             Benson.Name = "Benson";
