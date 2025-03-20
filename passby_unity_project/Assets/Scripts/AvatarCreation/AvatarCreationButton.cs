@@ -19,6 +19,7 @@ namespace PassBy
 
         IEnumerator SetPlayerDetails()
         {
+            connectionWarningAnimator.gameObject.SetActive(true);
             connectionWarningAnimator.SetTrigger("FadeOut"); // FadeOut if needed
             yield return new WaitForSeconds(0.5f);
 
@@ -28,7 +29,7 @@ namespace PassBy
             PlayerController.Instance.StartGeneratePlayerId();
             SaveController.Instance.Save();
 
-            yield return new WaitForSeconds(0.5f); // Give the game time to connect to the server and generate a player id... race condition?
+            yield return new WaitForSeconds(1.5f); // Give the game time to connect to the server and generate a player id... race condition?
 
             if (PlayerController.Instance.Passerby.ID < 0)
             {

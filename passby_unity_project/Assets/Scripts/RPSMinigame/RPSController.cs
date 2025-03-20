@@ -26,6 +26,7 @@ namespace PassBy
         GameObject p2Avatar;
         int winStreak;
         int p1Choice, p2Choice;
+        SpriteRenderer p2RightHand;
 
         void Awake()
         {
@@ -79,7 +80,7 @@ namespace PassBy
                 string player2LeftHand = p2Passerby.Avatar.LeftHandColour;
                 p2LeftHand.sprite = Resources.Load<Sprite>("Art/kenney_shape-characters/PNG/Default/" + player2LeftHand);
                 // Right Hand
-                SpriteRenderer p2RightHand = p2Avatar.transform.GetChild(3).GetComponent<SpriteRenderer>();
+                p2RightHand = p2Avatar.transform.GetChild(3).GetComponent<SpriteRenderer>();
                 string player2RightHand = p2Passerby.Avatar.RightHandColour;
                 p2RightHand.sprite = Resources.Load<Sprite>("Art/kenney_shape-characters/PNG/Default/" + player2RightHand);
 
@@ -179,7 +180,6 @@ namespace PassBy
             }
 
             // Set P2's right hand
-            SpriteRenderer p2RightHand = p2Avatar.transform.GetChild(3).GetComponent<SpriteRenderer>();
             string player2RightHand = p2RightHand.sprite.name;
             Debug.Log($"player2RightHand sprite name: {player2RightHand}");
 

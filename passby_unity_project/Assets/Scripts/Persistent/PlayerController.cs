@@ -101,7 +101,6 @@ namespace PassBy
             };
 
                 string bodyType = GameObject.Find("Canvas Avatar/Body").GetComponent<Image>().sprite.name; // need a better way to get these values...
-                Debug.Log($"Body Type: {bodyType}");
                 string leftHandColour = GameObject.Find("Left Hand").GetComponent<Image>().sprite.name;
                 string rightHandColour = GameObject.Find("Right Hand").GetComponent<Image>().sprite.name;
 
@@ -157,7 +156,7 @@ namespace PassBy
                 yield return StartCoroutine(GetNearbyPlayers());
                 yield return new WaitForSecondsRealtime(7.5f);
                 // If the last passby was over 600 seconds ago...
-                if(Time.unscaledTime - 30.0f > lastPassbyTimestamp) // 30 seconds for debugging
+                if(Time.unscaledTime - 30.0f > lastPassbyTimestamp) // 30 seconds for playtest in controlled environment
                 {
                     // ...give the player a fake passerby
                     Passerby fakePasserby = FakeAvatarController.Instance.GetRandomFakePasserby();
