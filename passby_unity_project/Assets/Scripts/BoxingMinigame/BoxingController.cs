@@ -144,7 +144,7 @@ namespace PassBy
                     {
                         float secondsToWin = Time.unscaledTime - startTime;
                         float secondsPerClick = secondsToWin / 30;
-                        StartCoroutine(SetPlayerSPC(p2Passerby.ID, secondsPerClick));
+                        StartCoroutine(SetPlayerSPC(PlayerController.Instance.Passerby.ID, secondsPerClick));
                     }
                 }
 
