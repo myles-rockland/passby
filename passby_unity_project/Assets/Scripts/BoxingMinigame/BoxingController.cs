@@ -1,7 +1,10 @@
+using Newtonsoft.Json;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Networking;
 using UnityEngine.UI;
 
 namespace PassBy
@@ -29,6 +32,9 @@ namespace PassBy
         List<AudioClip> punchSfxs;
         bool gameRunning;
         int winStreak;
+        float enemySecondsPerClick = (float) 6/30;
+        float startTime;
+        Passerby p2Passerby;
 
         void Awake()
         {
@@ -70,7 +76,7 @@ namespace PassBy
             if (activePasserbyQueue.Count > 0) 
             {
                 // Set player2 to first passerby in the queue, and remove that passerby from the queue
-                Passerby p2Passerby = activePasserbyQueue.Dequeue();
+                p2Passerby = activePasserbyQueue.Dequeue();
 
                 // Set P2 Avatar to passerby's avatar
                 // Body
@@ -91,6 +97,12 @@ namespace PassBy
 
                 // Enable Start button
                 startButton.SetActive(true);
+
+                // Get the enemy player's CPS
+                if (p2Passerby.ID >= 0)
+                {
+                    StartCoroutine(GetPlayerSPC(p2Passerby.ID));
+                }
             }
         }
 
@@ -126,6 +138,14 @@ namespace PassBy
                     winStreak++;
                     winStreakText.text = $"Win Streak: {winStreak}";
                     SaveController.Instance.Save();
+
+                    // If the player is a real player
+                    if (p2Passerby.ID >= 0)
+                    {
+                        float secondsToWin = Time.unscaledTime - startTime;
+                        float secondsPerClick = secondsToWin / 30;
+                        StartCoroutine(SetPlayerSPC(p2Passerby.ID, secondsPerClick));
+                    }
                 }
 
                 // Check inputs
@@ -161,6 +181,7 @@ namespace PassBy
             yield return new WaitForSeconds(1);
             middleText.text = "Tap!!";
             gameRunning = true;
+            startTime = Time.unscaledTime;
             StartCoroutine(DecrementP1Health());
             //yield return null;
         }
@@ -169,10 +190,70 @@ namespace PassBy
         {
             while (gameRunning)
             {
-                float waitTime = Random.Range((float)5/30, (float)6/30);
+                float waitTime = Random.Range(enemySecondsPerClick - 1/30, enemySecondsPerClick);
                 yield return new WaitForSeconds(waitTime);
                 p1HealthBarSlider.value--;
             }
+        }
+
+        IEnumerator GetPlayerSPC(int passerbyID)
+        {
+            // Create JSON data
+            Dictionary<string, int> playerData = new Dictionary<string, int> {
+                { "player_id", passerbyID }
+            };
+
+            string playerJsonData = JsonConvert.SerializeObject(playerData);
+
+            // Send POST request to get nearby players
+            string contentType = "application/json";
+            using (UnityWebRequest request = UnityWebRequest.Post($"{PlayerController.Instance.GetServerURL()}/get_player_spc", playerJsonData, contentType))
+            {
+                yield return request.SendWebRequest();
+
+                if (request.result != UnityWebRequest.Result.Success)
+                {
+                    Debug.LogWarning("Error getting player SPC: " + request.error);
+                }
+                else
+                {
+                    string jsonResponse = request.downloadHandler.text;
+                    Debug.Log("Player's SPC: " + jsonResponse);
+                    enemySecondsPerClick = JsonConvert.DeserializeObject<float>(jsonResponse);
+                    
+                }
+            }
+            yield break;
+        }
+
+        IEnumerator SetPlayerSPC(int passerbyID, float secondsPerClick)
+        {
+            // Create JSON data
+            Dictionary<string, object> playerData = new Dictionary<string, object> {
+                { "player_id", passerbyID },
+                { "seconds_per_click", secondsPerClick }
+            };
+
+            string playerJsonData = JsonConvert.SerializeObject(playerData);
+
+            // Send POST request to get nearby players
+            string contentType = "application/json";
+            using (UnityWebRequest request = UnityWebRequest.Post($"{PlayerController.Instance.GetServerURL()}/set_player_spc", playerJsonData, contentType))
+            {
+                yield return request.SendWebRequest();
+
+                if (request.result != UnityWebRequest.Result.Success)
+                {
+                    Debug.LogWarning("Error setting player SPC: " + request.error);
+                }
+                else
+                {
+                    string jsonResponse = request.downloadHandler.text;
+                    Debug.Log(jsonResponse);
+
+                }
+            }
+            yield break;
         }
 
         public void Save(ref BoxingData boxingData)
