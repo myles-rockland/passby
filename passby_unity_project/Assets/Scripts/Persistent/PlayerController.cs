@@ -199,6 +199,8 @@ namespace PassBy
                 { "longitude", Input.location.lastData.longitude }
             };
 
+            Debug.Log($"Latitude: {Input.location.lastData.latitude}, Longitude: {Input.location.lastData.longitude}");
+
             string playerJsonData = JsonConvert.SerializeObject(playerData);
 
             // Send POST request to get nearby players
