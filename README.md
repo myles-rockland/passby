@@ -7,6 +7,13 @@ PassBy is a social mobile game that encourages outdoor activity and facilitates 
 ## Video Overview
 YouTube Link: https://youtu.be/RHIhkc5xRaE
 
+Development Logs YouTube Playlist: https://youtube.com/playlist?list=PLTrKxnXbM7jXpN7ezcZjvfqcwcUNBFL-t&si=QZix-CQCnZBaCyra
+
+## Repository Use
+The Unity client was developed in Unity version 2022.3. To view the project, open the "passby_unity_project" directory as a project in Unity.
+
+Details for the Python Flask application server can be viewed in its own repository. To view the source code, simply open the "main.py" file in IDLE IDE or your preferred code editor.
+
 ## Asset Accreditation
 ### Hip Jazz by Benjamin Tissot
 Available at: https://www.bensound.com/royalty-free-music/track/hip-jazz
